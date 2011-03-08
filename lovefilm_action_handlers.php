@@ -238,27 +238,7 @@ function lovefilm_uninstall() {
 	lovefilm_delete_options();
 	unregister_widget('Lovefilm_Widget');
 }
-/**
- * Checks to ensure that the plug-in has a UID,
- * and if not, creates and registers for a new UID.
- * Called via the action hook 'plugins_loaded'.
- */
-/*
- * IS THE FOLLOWING FUNCTION NEEDED?
- */
-function lovefilm_plugins_loaded() {
 
-    $uid = get_option( 'lovefilm-uid' );
-	
-    if (is_null($uid))
-    {
-		// Looks like the plug-in doesnt have a uid.
-		// Create one and register the plug-in with
-		// the LOVEFiLM Web Service.
-		lovefilm_ws_register_uid();
-	}
-
-}
 /**
  * Generates the admin option under 'Settings' for
  * the LOVEFiLM Widget Configuration Panel.

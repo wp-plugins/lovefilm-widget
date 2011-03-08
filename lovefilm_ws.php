@@ -114,7 +114,11 @@ function lovefilm_ws_unregister_uid($uid)
     if(!is_string($uid))
         throw new InvalidArgumentException("UID must be a string");
 
-    $path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_UNREGISTER_PLUGIN);
+    try {
+    	$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_UNREGISTER_PLUGIN);
+    } catch(Exception $e) {
+		return false;    	
+    }
 
     $response = lovefilm_http_call($path, "DELETE", array("uid" => $uid));
 
@@ -520,7 +524,11 @@ function lovefilm_ws_usage_data($uid=null, $data)
 	if(!is_array($data))
         throw new InvalidArgumentException("Data must be an array");
 
-    $path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_SUBMIT_USAGE_DATA);
+    try {
+    	$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_SUBMIT_USAGE_DATA);
+    } catch(Exception $e) {
+    	return false;
+    }
 
     $content = array_merge(array("uid" => $uid), $data);
     $response = lovefilm_http_call($path, "POST", $content);
@@ -535,7 +543,11 @@ function lovefilm_ws_change_context($context)
 {
     global $wpdb;
 
-    $path = lovefilm_ws_get_service_endpoint('lovefilm-switch-context-plugin');
+    try {
+    	$path = lovefilm_ws_get_service_endpoint('lovefilm-switch-context-plugin');
+    } catch(Exception $e) {
+    	return false;
+	}
 
     $content = array(
                     'context' => $context,
@@ -687,7 +699,7 @@ function lovefilm_ws_get_marketing_msg()
 		    	$marketingMsg = json_decode($response['body']);
 		    	update_option('lovefilm-marketing-message', $marketingMsg);
 		    }
-	    } catch(LoveFilmWebServiceException $e) {
+	    } catch(Exception $e) {
 	    	$marketingMsg = NULL;
 	    	update_option('lovefilm-marketing-message', "");
 	    }
