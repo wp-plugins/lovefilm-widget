@@ -2,8 +2,8 @@
 Contributors: lovefilm-widgets
 Requires at least: 2.8.0
 Tested up to: 3.1.0
-Tags: 1.0, 1.0.1
-Stable Tag: 1.0.1
+Tags: 1.0, 1.0.1, 1.0.2
+Stable Tag: 1.0.2
 
 This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog. 
 
