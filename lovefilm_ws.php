@@ -19,9 +19,6 @@ define('LOVEFILM_WS_REL_GET_ASSIGNED_TITLES', 'lovefilm-assigned-titles');
 define('LOVEFILM_WS_REL_GET_MARKETING_MSG',   'lovefilm-message');
 define('LOVEFILM_WS_REL_PROMO_CODE',          'lovefilm-promo');
 
-define('LOVEFILM_CONTEXT_GAME', 'games');
-define('LOVEFILM_CONTEXT_FILM', 'films');
-
 define('LOVEFILM_HTTP_STATUS_OK', 200);
 define('LOVEFILM_HTTP_STATUS_BAD', 400);
 

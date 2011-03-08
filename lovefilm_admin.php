@@ -213,22 +213,58 @@ function lovefilm_input_widget_aff()
 
 function lovefilm_validate_settings($input)
 {
-
-    $validInput = array();
-    $validContext = array('films', 'games');
-    $validType = array('contextual', 'vanity', 'affiliate');
-    $validWidthType = array('fluid', 'fixed');
-    $validTheme = array('light', 'dark');
-    $error = false;
-    // Width may not be null , empty, lower than 200 or greater than 450
-
-    if($input['lovefilm_width_type'] != "fluid")
+	/**
+	 * Array of valid Widget Contexts
+	 */
+    $validContext   = array(
+    				   LOVEFILM_CONTEXT_FILM, 
+    				   LOVEFILM_CONTEXT_GAME
+    				  );
+	/**
+	 * Array of valid modes
+	 */
+   	$validMode      = array(
+    			       LOVEFILM_WIDGET_MODE_CONTEXT, 
+    			       LOVEFILM_WIDGET_MODE_VANITY,
+    			       LOVEFILM_WIDGET_MODE_AFFILIATE
+    			      );
+    /**
+     * Array of valid width types
+     */
+    $validWidthType = array(
+    				   LOVEFILM_WIDTH_TYPE_FLUID, 
+    				   LOVEFILM_WIDTH_TYPE_FIXED
+    				  );
+    /**
+     * Array of valid themes
+     */			
+    $validTheme     = array(
+    			       LOVEFILM_THEME_LIGHT, 
+    			       LOVEFILM_THEME_DARK
+    			      );
+	/**
+	 * Array to store the valid input
+	 */    			     
+    $validInput     = array();
+	/**
+	 * Has a user error occured?
+	 */
+    $error          = false;
+   	/**
+   	 * Validate the Width entered by the WP-Admin.
+   	 * If the Width is fluid, then we check to ensure
+   	 * that the Width is between the minimum and 
+   	 * maximum range. If not, we set the Width to the
+   	 * default value.
+   	 */
+    if($input['lovefilm_width_type'] != LOVEFILM_WIDTH_TYPE_FLUID)
     {
-        if(is_null($input['lovefilm_width']) || $input['lovefilm_width'] == '' ||
-                $input['lovefilm_width'] < 200 || $input['lovefilm_width'] > 350)
+        if(is_null($input['lovefilm_width']) || 
+           $input['lovefilm_width'] == '' ||
+           $input['lovefilm_width'] < LOVEFILM_WIDTH_MIN || 
+           $input['lovefilm_width'] > LOVEFILM_WIDTH_MAX)
         {
-            add_settings_error('lovefilm-settins_lovefilm_width', 'width-error', 'Width is required and must be between 200 and 350', 'error');
-            $validInput['lovefilm_width'] = $input['lovefilm_width'];
+            $validInput['lovefilm_width'] = LOVEFILM_DEFAULT_WIDTH;
             $error = true;
         }
         else
@@ -236,49 +272,59 @@ function lovefilm_validate_settings($input)
             $validInput['lovefilm_width'] = $input['lovefilm_width'];
         }
     }
-
+	/**
+	 * Validate the Context entered by the WP-Admin.
+	 * If the Context is an invalid value, we set
+	 * the Context to the default value.
+	 */
     if(!in_array($input['context'], $validContext))
     {
-        add_settings_error('lovefilm-settins_context', 'context-error', 'Invalid Context Specified', 'error');
-        $validInput['context'] = $input['context'];
+        $validInput['context'] = LOVEFILM_DEFAULT_CONTEXT;
         $error = true;
     }
     else
     {
         $validInput['context'] = $input['context'];
     }
-    /*
-      if(!in_array($input['type'], $validType))
-      {
-      add_settings_error('lovefilm-settins_type', 'type-error', 'Invalid Type Specified', 'error');
-      $validInput['type'] = $input['type'];
-      }
-      else
-      {
-      $validInput['type'] = $input['type'];
-      } */$validInput['type'] = 'affiliate';
-
+	/**
+	 * Set the Widget Mode.
+	 * As the Admin Panel currently lacks any other
+	 * useage modes (for now), we set it to the
+	 * default mode. 
+	 */
+    $validInput['type'] = LOVEFILM_DEFAULT_MODE;
+	/**
+	 * Validate the Theme selected by the WP-Admin.
+	 * If the Theme selected is an invalid entry,
+	 * we set the Theme to the default Theme.
+	 */
     if(!in_array($input['theme'], $validTheme))
     {
-        add_settings_error('lovefilm-settins_type', 'type-error', 'Invalid Theme Specified', 'error');
-        $validInput['theme'] = $input['theme'];
+        $validInput['theme'] = LOVEFILM_DEFAULT_THEME;
         $error = true;
     }
     else
     {
         $validInput['theme'] = $input['theme'];
     }
-
+	/**
+	 * Validate the Width Type selected by the WP-Admin.
+	 * If the Width Type selected is an invalid entry,
+	 * we set the Width Type to the default Width Type.
+	 */
     if(!in_array($input['lovefilm_width_type'], $validWidthType))
     {
-        add_settings_error('lovefilm-settins_lovefilm_width_type', 'type-error', 'Invalid Width Type Specified', 'error');
+    	$validInput['lovefilm_width_type'] = LOVEFILM_DEFAULT_WIDTH_TYPE;
         $error = true;
     }
     else
     {
         $validInput['lovefilm_width_type'] = $input['lovefilm_width_type'];
     }
-
+	/**
+	 * We dont validate the affliate id, we simply set it
+	 * to what ever value the WP-Admin entered.
+	 */
     $validInput['lovefilm_aff'] = $input['lovefilm_aff'];
 
     // Check if all validation has passed
@@ -299,7 +345,6 @@ function lovefilm_validate_settings($input)
             if(!$shiftResult)
             {
                 // Remote context change failed - triggering this error stops the wp-option being updated.
-                add_settings_error('lovefilm_aff', 'type-error', 'Unable to change Context (Films / Games) at this time. Please try again later.');
                 $validInput['context'] = $options['context'];
             }
         }

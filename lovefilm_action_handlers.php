@@ -20,31 +20,6 @@ define('MYWP_PLUGIN_URL', WP_PLUGIN_URL . '/lovefilm');
 define('LOVEFILM_WS_RESOURCES_URL', LOVEFILM_WS_URL.'widget');
 
 /**
- * Widget modes
- */
-define('LOVEFILM_WIDGET_MODE_AFFILIATE', 'affiliate');
-define('LOVEFILM_WIDGET_MODE_VANITY',    'vanity');
-define('LOVEFILM_WIDGET_MODE_CONTEXT',   'context');
-/**
- * Widget Themes
- */
-define('LOVEFILM_THEME_LIGHT', 'light');
-define('LOVEFILM_THEME_DARK',  'dark');
-/**
- * Widget width types
- */
-define('LOVEFILM_WIDTH_TYPE_FLUID', 'fluid');
-/**
- * Default settings.
- */
-define('LOVEFILM_DEFAULT_CONTEXT',    LOVEFILM_CONTEXT_FILM);
-define('LOVEFILM_DEFAULT_MESSAGE',    NULL);
-define('LOVEFILM_DEFAULT_TYPE',       LOVEFILM_WIDGET_MODE_AFFILIATE);
-define('LOVEFILM_DEFAULT_THEME',      LOVEFILM_THEME_LIGHT);
-define('LOVEFILM_DEFAULT_WIDTH_TYPE', LOVEFILM_WIDTH_TYPE_FLUID);
-define('LOVEFILM_DEFAULT_AFF',        NULL);
-
-/**
  * Informs the LOVEFiLM Web Service of a new plug-in
  * activation, registers the UID of the plug-in and
  * posts useage data to the Web Service.
@@ -159,7 +134,7 @@ function lovefilm_init_options()
 	{
 		update_option('lovefilm-settings', array(
 											"context"             => LOVEFILM_DEFAULT_CONTEXT, 
-											"type"                => LOVEFILM_DEFAULT_TYPE, 
+											"type"                => LOVEFILM_DEFAULT_MODE, 
 											"theme"               => LOVEFILM_DEFAULT_THEME, 
 											"lovefilm_width_type" => LOVEFILM_DEFAULT_WIDTH_TYPE, 
 											"lovefilm_aff"        => LOVEFILM_DEFAULT_AFF));
@@ -171,7 +146,7 @@ function lovefilm_init_options()
 			$defaultSettings["context"] = LOVEFILM_DEFAULT_CONTEXT;
 			
 		if(!array_key_exists("type", $res))
-			$defaultSettings["type"] = LOVEFILM_DEFAULT_TYPE;
+			$defaultSettings["type"] = LOVEFILM_DEFAULT_MODE;
 			
 		if(!array_key_exists("theme", $res))
 			$defaultSettings["theme"] = LOVEFILM_DEFAULT_THEME;
