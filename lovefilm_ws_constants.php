@@ -6,6 +6,38 @@
  * Part of the LOVEFiLM WordPress Widget Plug-in.
  * Contains web service constants.
  */
+
+/**
+ * PHP Version constant, made available for
+ * version less than 5.2.7 
+ */
+if (!defined('PHP_VERSION_ID')) {
+    $version = explode('.', PHP_VERSION);
+    define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+}
+/**
+ * PHP Version constants, made available for
+ * version less than 5.2.7
+ */
+if (PHP_VERSION_ID < 50207) {
+    define('PHP_MAJOR_VERSION',   $version[0]);
+    define('PHP_MINOR_VERSION',   $version[1]);
+    define('PHP_RELEASE_VERSION', $version[2]);
+}
+/**
+ * Minimum version of PHP supported by the Plug-in.
+ */
+if(!defined('LOVEFILM_PLUGIN_MIN_PHP_MAJOR_VERSION'))
+	define('LOVEFILM_PLUGIN_MIN_PHP_MAJOR_VERSION', 5);
+if(!defined('LOVEFILM_PLUGIN_MIN_PHP_MINOR_VERSION'))
+	define('LOVEFILM_PLUGIN_MIN_PHP_MINOR_VERSION', 1);
+if(!defined('LOVEFILM_PLUGIN_MIN_PHP_RELEASE_VERSION'))
+	define('LOVEFILM_PLUGIN_MIN_PHP_RELEASE_VERSION', 0);
+if(!defined('LOVEFILM_PLUGIN_MIN_PHP_VERSION_ID'))
+	define('LOVEFILM_PLUGIN_MIN_PHP_VERSION_ID', LOVEFILM_PLUGIN_MIN_PHP_MAJOR_VERSION * 10000 + LOVEFILM_PLUGIN_MIN_PHP_MINOR_VERSION * 100 + LOVEFILM_PLUGIN_MIN_PHP_RELEASE_VERSION);
+/**
+ * Webservice name
+ */
 $servername = $_SERVER['SERVER_NAME'];
 switch($servername)
 {
@@ -28,6 +60,9 @@ if (!defined('LOVEFILM_WS_URL'))
 
 if (!defined('LOVEFILM_WS_API_URL'))
 	define('LOVEFILM_WS_API_URL', LOVEFILM_WS_URL."api");
+	
+if(!defined('LOVEFILM_HTTP_TIMEOUT'))
+	define('LOVEFILM_HTTP_TIMEOUT', 5);
 /**
  * Widget modes
  */

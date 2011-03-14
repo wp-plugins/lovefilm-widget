@@ -16,27 +16,7 @@ class Lovefilm_Widget extends WP_Widget
 
     public function widget($args, $instance)
     {
-        $servername = $_SERVER['SERVER_NAME'];
         $embed_status = Lovefilm_Widget::SERVICE_SUCCESS;
-        switch($servername)
-        {
-            case 'wp.local':
-                $remAddr = "http://lovefilm-ws.dev/";
-                break;
-            case 'kerny.stickyeyes.local':
-                $remAddr = "http://lfservice.kerny.stickyeyes.local/";
-                break;
-            case 'lovefilm.staging.stickyeyes.com':
-                $remAddr = "http://webservice.lovefilm.staging.stickyeyes.com/";
-                break;
-            case 'lovefilm-int.staging.stickyeyes.com':
-                $remAddr = "http://webservice.lovefilm-int.staging.stickyeyes.com/";
-                break;
-            default:
-                $remAddr = "http://widget.lovefilm.com/";
-                break;
-        }
-
         $favourites = Lovefilm_Catalogue::Favourites($_SERVER['REQUEST_URI']);
 
         //lovefilm_ws_get_embedded_titles_db();
@@ -57,6 +37,7 @@ class Lovefilm_Widget extends WP_Widget
 
                 lovefilm_ws_set_embedded_titles_db($titles);
                 $titles = lovefilm_ws_get_embedded_titles_db();
+                $embed_status == Lovefilm_Widget::SERVICE_SUCCESS;
             }
             catch(Exception $e)
             {
