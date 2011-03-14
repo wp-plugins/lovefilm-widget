@@ -27,14 +27,31 @@ define('LOVEFILM_WS_RESOURCES_URL', LOVEFILM_WS_URL.'widget');
  */
 function lovefilm_activate() {
 
-    lovefilm_parse_configfile();
-
+	// Check that we are running on supported version of PHP
+	if(PHP_VERSION_ID < LOVEFILM_PLUGIN_MIN_PHP_VERSION_ID){
+		$minVersion = implode('.', array(LOVEFILM_PLUGIN_MIN_PHP_MAJOR_VERSION,LOVEFILM_PLUGIN_MIN_PHP_MINOR_VERSION,LOVEFILM_PLUGIN_MIN_PHP_RELEASE_VERSION));
+		$message = "<h1>The LOVEFiLM Widget currently requires at least PHP".$minVersion."</h1><p>Your current version of PHP is ".phpversion().". Please talk to your hosting provider or server administrator about upgrading your current version of PHP to at least version ".$minVersion." or higher.</p>"; 
+		if(function_exists('deactivate_plugins') )
+			deactivate_plugins(dirname(__FILE__).DIRECTORY_SEPARATOR."lovefilm.php");
+		else
+			$message .= '<p><strong>Please deactivate this plugin Immediately</strong></p>'; //We couldnt automatically deactivate without messing with array, for Wordpress < 2.4
+		wp_die($message);
+	}
+	
+	// Check that we can make HTTP requests
+	try {
+		$response = lovefilm_http_call("/", "GET");
+	} catch(Exception $e) {
+		$message = "<h1>The LOVEFiLM Widget cannot connect to the LOVEFiLM Webservice.</h1><p>The LOVEFiLM Widget is having problems activating itself with the LOVEFiLM Webservice. Please try activating the plug-in again. If this problem persists, please check your WordPress, PHP and Web Server configuration to ensure that WordPress plug-ins have access to the web.</p>";
+		$message .= "<p><pre>".$e->getMessage()."</pre></p>";
+		if(function_exists('deactivate_plugins') )
+			deactivate_plugins(dirname(__FILE__).DIRECTORY_SEPARATOR."lovefilm.php");
+		wp_die($message);
+	}
+	
     lovefilm_install_tables();
-
     lovefilm_init_options();
-    
     delete_option('lovefilm');
-    
     error_log("Love film Activated");
     
     //Activates the Scheduler for lovefilm cron job 
@@ -86,7 +103,6 @@ function lovefilm_parse_configfile()
 function lovefilm_install_tables()
 {
     global $wpdb;
-    $wpdb->show_errors();
     $sqldir = dirname(__FILE__) . '/sql/tables.sql';
 
     $installSql = file_get_contents($sqldir);
@@ -103,7 +119,6 @@ function lovefilm_install_tables()
 function lovefilm_uninstall_tables()
 {
     global $wpdb;
-    $wpdb->show_errors();
     $sqldir = dirname(__FILE__) . '/sql/uninstall.sql';
 
     $installSql = file_get_contents($sqldir);

@@ -3,6 +3,7 @@
  * Plugin Name: LOVEFiLM Widget
  * Plugin URI: http://www.lovefilm.com/partnership/widgets
  * Description: This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog. Monetise your blog by promoting the latest and most popular movies or games with LOVEFiLM's affiliate program.
+ * Version: 1.6
  * Author: LOVEFiLM-widgets
  * Author URI: http://profiles.wordpress.org/users/LOVEFiLM-widgets/
  * License: GPL2
@@ -23,10 +24,15 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * The following constant is set by the build process
+ */
+if(!defined('LOVEFILM_WIDGET_VERSION')) {
+	define('LOVEFILM _WIDGET_VERSION', "1.6");
+}
 /*
  * Checkes the version of the Wordpress. if the version is less then 3.0 then it shows the the error message.
  */
-
 global $wp_version;
 
 if ( !version_compare($wp_version,"2.8",">=") ) {
@@ -77,7 +83,7 @@ if(!function_exists('_log')){
     if( WP_DEBUG === true ){
       $prefix = "LOVEFiLM Plugin: ";
       if( is_array( $message ) || is_object( $message ) ){
-      	if(is_object( $message ) && $message instanceof Exception)
+      	if(is_object( $message ) && is_a($message, 'Exception'))
       		$message = get_class($message).": ".$message->getMessage()."\n".$message->getTraceAsString(); 
         error_log( print_r( $prefix.$message, true ) );
       } else {
@@ -99,17 +105,20 @@ if(!class_exists('InvalidArgumentException')){
  * the interval is 86400 = 60S*60M*24H
  */
 
-function lovefilm_cronjob( $schedules ) {
+if(!function_exists('lovefilm_cronjob')) {
+	function lovefilm_cronjob( $schedules ) {
+	
+	    $interval = get_option('lf_cron_increment', 86400);
+	    // add a schedule to the existing set
+	    error_log('lovefilm cron interval is registered');
+		$schedules['lf_cron_day'] = array(
+			'interval' => $interval,
+			'display' => __('one minute')
+		);
+	    
+		return $schedules;
+	}
 
-    $interval = get_option('lf_cron_increment', 86400);
-    // add a schedule to the existing set
-    error_log('lovefilm cron interval is registered');
-	$schedules['lf_cron_day'] = array(
-		'interval' => $interval,
-		'display' => __('one minute')
-	);
-    
-	return $schedules;
+	// Adds filter for the cron sheduler for
+	add_filter( 'cron_schedules', 'lovefilm_cronjob' );
 }
-// Adds filter for the cron sheduler for
-add_filter( 'cron_schedules', 'lovefilm_cronjob' );

@@ -1,5 +1,5 @@
 <script type="text/javascript">
-LFWidget.remote_addr = '<?php echo $remAddr; ?>';
+LFWidget.remote_addr = '<?php echo LOVEFILM_WS_URL; ?>';
 LFWidget.domain = '<?php echo get_option('lovefilm_domain') ?>';
 LFWidget.affid = '<?php echo (array_key_exists('lovefilm_aff', $widgetOpts))?$widgetOpts['lovefilm_aff']:''; ?>';
 LFWidget.theme = '<?php if(isset($widgetOpts['theme']) && !empty($widgetOpts['theme'])) echo $widgetOpts['theme']; ?>';

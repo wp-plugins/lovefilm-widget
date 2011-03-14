@@ -50,17 +50,10 @@ function lovefilm_ws_service_end_points()
 	catch(Exception $e) {
 		return false;
 	}
-	
-    if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-        return false;
 
     $services = array();
-    foreach($response['meta'] as $header)
-    {
-        if(!preg_match("/^Link: /", $header))
-            continue;
-
-        $links = explode(",", $header);
+    if(array_key_exists('link', $response['meta'])) {
+    	$links = explode(",", $response['meta']['link']);
         foreach($links as $link)
         {
             $rel = null;
@@ -76,6 +69,7 @@ function lovefilm_ws_service_end_points()
                 $services[$rel] = $href;
         }
     }
+    
     update_option('lovefilm-ws-endpoints', $services);
 }
 
@@ -88,6 +82,7 @@ function lovefilm_ws_register_uid()
     $domain   = get_option('siteurl');
     $response = lovefilm_http_call($path, "POST", array('domain' => $domain));
 
+    /*
     if(lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_BAD, $response))
     {
         throw new LoveFilmWebServiceErrorException("SiteUrl setting is invalid");
@@ -96,7 +91,8 @@ function lovefilm_ws_register_uid()
     {
         throw new LoveFilmWebServiceErrorException("Response not Okay");
     }
-
+	*/
+    
     $uid = $response['body'];
     
     update_option('lovefilm-uid', $uid);
@@ -118,10 +114,10 @@ function lovefilm_ws_unregister_uid($uid)
     }
 
     $response = lovefilm_http_call($path, "DELETE", array("uid" => $uid));
-
+	/*
     if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
         return false;
-
+	*/
     return (int) $response['body'];
 }
 
@@ -154,7 +150,7 @@ function lovefilm_ws_check_embedded_titles()
  */
 function lovefilm_ws_get_embedded_titles_ws()
 {
-    $path   = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_ASSIGNED_TITLES);
+   	$path   = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_ASSIGNED_TITLES);
     $uid    = get_option('lovefilm-uid');
     if(is_null($uid))
     	throw new UIDIsNullException();
@@ -164,10 +160,10 @@ function lovefilm_ws_get_embedded_titles_ws()
     $reqUri = lovefilm_ws_get_page();
    	$response = lovefilm_http_call($path, "GET", array("id" => $uid,
             "page" => $reqUri));
-
+/*
     if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
 		throw new LoveFilmWebServiceErrorException();
-    
+ */  
    	$titles = lovefilm_ws_parse_titles($response['body']);
     
 
@@ -182,6 +178,8 @@ function lovefilm_ws_get_embedded_titles_ws()
 function lovefilm_ws_parse_titles($xmlString)
 {
 	global $wpdb;
+	
+	_log("Parsing Titles");
 	
     $domDoc = new DomDocument();
     if(!@$domDoc->loadXml($xmlString))
@@ -213,7 +211,7 @@ function lovefilm_ws_parse_titles($xmlString)
                     {
                         case 'id':
                             $catOb->id = $childNode->nodeValue;
-                            break;
+                             break;
 
                         case 'title':
                             $catOb->title = $childNode->attributes->getNamedItem('clean')->nodeValue;
@@ -248,9 +246,9 @@ function lovefilm_ws_parse_titles($xmlString)
             
             if (property_exists($catOb, 'id'))
     		{
-    			$catOb->hash = $wpdb->escape(md5($catOb->id, true));
+    			$catOb->hash = md5($catOb->id, true);
     		} else {
-    			$catOb->hash = $wpdb->escape(md5($catOb->title.$catOb->url, true));
+    			$catOb->hash = md5($catOb->title.$catOb->url, true);
     			$catOb->id = $catOb->url;
     		}
 
@@ -258,6 +256,8 @@ function lovefilm_ws_parse_titles($xmlString)
         }
     }
    
+    _log("Done parsing titles: ".count($items));
+    
     return $items;
 }
 
@@ -343,37 +343,20 @@ function lovefilm_ws_set_embedded_titles_db($titles)
     $page     = lovefilm_ws_get_page();
     $pageHash = lovefilm_ws_get_pagehash();
 
-    @mysql_query("BEGIN", $wpdb->dbh);
     try {
     	lovefilm_ws_insup_catalogitems($titles);
 	    lovefilm_ws_insup_assignments($pageHash, $titles);
 	    lovefilm_ws_insup_page($pageHash, $page);
     } catch(Exception $e) {
-	    @mysql_query("ROLLBACK", $wpdb->dbh);
 	    _log($e);
-	    throw new Exception("Could not insert into cache: ".$e->getMessage(), $e->getCode(), $e);
+	    throw new Exception("Could not insert into cache: ".$e->getMessage(), $e->getCode());
     }
-    @mysql_query("COMMIT", $wpdb->dbh);
 }
 
 function lovefilm_ws_insup_catalogitems($titles)
 {
     global $wpdb;
-    
-    $sql = 'INSERT INTO `LFW_CatalogItem`
-                            (
-                            `catalogitem_id`,
-                            `catalogitem_lovefilm_resource_id`,
-                            `catalogitem_url`,
-                            `catalogitem_title`,
-                            `catalogitem_releasedate`,
-                            `catalogitem_updated`,
-                            `catalogitem_rating`,
-                            `catalogitem_imageurl`
-                            )
-                            VALUES ';
 
-    $values = '';
     foreach($titles as $title)
     {
     	if(property_exists($title, 'id') &&
@@ -382,12 +365,7 @@ function lovefilm_ws_insup_catalogitems($titles)
     		property_exists($title, 'title') &&
     		property_exists($title, 'releaseDate'))
     	{
-	   		if(property_exists($title, 'rating'))
-	   			$rating = $title->rating;
-	   		else
-	   			$rating = 0;
-    		
-	   		$image_url = "";
+    		$image_url = "";
 	   		if(property_exists($title, 'images'))
 	   		{
 	   			if(is_array($title->images))
@@ -397,64 +375,93 @@ function lovefilm_ws_insup_catalogitems($titles)
 	   					$image_url = $title->images['small']->href;
 	   				}
 	   			}
-	   		} else {
-	   			_log("No image found");
-	   		} 
+	   		}
+			
+	   		$rating = (property_exists($title, 'rating'))?$title->rating:0;		
+	   		   		
+	   		$selectSql = "SELECT catalogitem_id FROM LFW_CatalogItem WHERE catalogitem_id = UNHEX('<id>');";
 	   		
-	        $qAr[] = $title->hash;
-	        $qAr[] = $title->id;
-	        $qAr[] = $wpdb->escape($title->url);
-	        $qAr[] = $wpdb->escape($title->title);
-	        $qAr[] = $wpdb->escape($title->releaseDate);
-	        $qAr[] = date('Y-m-d H:i:s');
-	        $qAr[] = $rating;
-	        $qAr[] = $wpdb->escape($image_url);
-	
-	        $value = '(\'' . implode('\',\'', $qAr) . '\'),';
-	        $values .= $value;
-        	unset($qAr);
+	   		$insertSql = "INSERT INTO LFW_CatalogItem SET
+	   					  catalogitem_id = UNHEX('<id>'),
+	   					  catalogitem_lovefilm_resource_id = %s,
+	   					  catalogitem_url = %s,
+	   					  catalogitem_title = %s,
+	   					  catalogitem_releasedate = %s,
+	   					  catalogitem_updated = %s,
+	   					  catalogitem_rating = %d,
+	   					  catalogitem_imageurl = %s;";
+	   		
+	   		$updateSql = "UPDATE LFW_CatalogItem
+                          SET
+	   					  catalogitem_lovefilm_resource_id = %s,
+	   					  catalogitem_url = %s,
+	   					  catalogitem_title = %s,
+	   					  catalogitem_releasedate = %s,
+	   					  catalogitem_updated = %s,
+	   					  catalogitem_rating = %s,
+	   					  catalogitem_imageurl = %s
+	   					  WHERE catalogitem_id = UNHEX('<id>');";
+	    	
+	   		$selectSql = str_replace('<id>', bin2hex($title->hash), $selectSql);
+	   		$insertSql = str_replace('<id>', bin2hex($title->hash), $insertSql);
+	   		$updateSql = str_replace('<id>', bin2hex($title->hash), $updateSql);
+
+		    $result = $wpdb->query($selectSql);
+		    
+		    if($result === FALSE) {
+		    	return false;
+		    }
+		    
+			if($result == 0) {
+		    	$result = $wpdb->query($wpdb->prepare($insertSql, $title->id, $title->url, $title->title, $title->releaseDate, date('Y-m-d H:i:s'), $rating, $image_url));
+			} else {
+		   		$result = $wpdb->query($wpdb->prepare($updateSql, $title->id, $title->url, $title->title, $title->releaseDate, date('Y-m-d H:i:s'), $rating, $image_url));
+		   		if($result === FALSE) {
+		   			return false;
+		   		}
+		    }
     	} else {
+    		_log("Missing properties: id, hash, url, title, releaseDate; images");
     	}
-
-    }
-
-    $sql .= substr($values, 0, -1);
-
-    $sql .=' ON DUPLICATE KEY UPDATE catalogitem_rating=VALUES(catalogitem_rating),
-                                     catalogitem_url=VALUES(catalogitem_url),
-                                     catalogitem_updated=VALUES(catalogitem_updated)';
-
-    if ($wpdb->query($sql) === FALSE) {
-    	throw new Exception("Failed to insert into LFW_CatalogItem: ".mysql_error($wpdb->dbh), null);
     }
 }
 
 function lovefilm_ws_insup_page($pageHash, $pageUri)
 {
-
     global $wpdb;
 
-    $pageDate = date('Y-m-d H:i:s');
+    $selectSql = "SELECT page_id FROM LFW_Page WHERE page_id = UNHEX('<id>');";
+    
+    $insertSql = "INSERT INTO LFW_Page SET
+    			  page_id = UNHEX('<id>'),
+    			  page_datequeried = %s,
+    			  page_uri = %s
+    			  ;";
+    
+    $updateSql = "UPDATE LFW_Page 
+    			  SET 
+                  page_datequeried = %s,
+    			  page_uri = %s
+    			  WHERE page_id = UNHEX('<id>');";
 
-    $value = "'" . $wpdb->escape($pageHash) . "', '$pageDate', '" . $wpdb->escape($pageUri) . "' ";
+	$selectSql = str_replace('<id>', bin2hex($pageHash), $selectSql);
+    $insertSql = str_replace('<id>', bin2hex($pageHash), $insertSql);
+	$updateSql = str_replace('<id>', bin2hex($pageHash), $updateSql);
+    
+    $result = $wpdb->query($selectSql);
+    
+    if($result === FALSE) {
+    	return false;
+    }
+    
+	if($result == 0) {
+		$result = $wpdb->query($wpdb->prepare($insertSql, date('Y-m-d H:i:s'), $pageUri));
+	} else {
+    	$result = $wpdb->query($wpdb->prepare($updateSql, date('Y-m-d H:i:s'), $pageUri));
 
-    $sql = 'INSERT INTO LFW_Page
-                    (
-                     `page_id`,
-                     `page_datequeried`,
-                     `page_uri`
-                    )
-                    VALUE
-                    (
-                      %s
-                    )
-                   ON DUPLICATE KEY UPDATE 
-                            page_datequeried=VALUES(page_datequeried)';
-
-    $sql = sprintf($sql, $value);
-
-    if ($wpdb->query($sql) === FALSE) {
-    	throw new Exception("Failed to insert into LFW_Page: ".mysql_error($wpdb->dbh), null);
+    	if($result === FALSE) {
+    	   	return false;
+    	}
     }
 }
 
@@ -462,39 +469,55 @@ function lovefilm_ws_insup_assignments($pageId, $titles)
 {
     global $wpdb;
 
-    $sql = "INSERT INTO LFW_PageAssignment
-            (
-            page_id,
-            assignment_position,
-            nofollow,
-            catalogitem_id
-            )
-            VALUES ";
-
-    $values = "";
-
-    $hexPageId = bin2hex($pageId);
-    
     foreach($titles as $title)
     {
+    	if(property_exists($title, 'hash') && property_exists($title, 'position')) {
+    		
+    		$nofollow = ($title->nofollow=='true')?1:0;
+
+    		$selectSql = "SELECT page_id FROM LFW_PageAssignment WHERE page_id = UNHEX('<id>') AND catalogitem_id = UNHEX('<catId>');";
+    		
+    		$insertSql = "INSERT INTO LFW_PageAssignment SET
+    					  page_id = UNHEX('<id>'),
+    					  assignment_position = %s,
+    					  nofollow = %d,
+    					  catalogitem_id = UNHEX('<catId>')
+    					  ;";
     	
-    	if(property_exists($title, 'hash') &&
-    		property_exists($title, 'position'))
-    	{
-        	$values .= "(UNHEX('" . $hexPageId . "')," . $wpdb->escape($title->position).", ".$wpdb->escape($title->nofollow).", '" . $title->hash . "'),";
+    		$updateSql = "UPDATE LFW_PageAssignment 
+                          SET
+    					  assignment_position = %s,
+    					  nofollow = %d
+                          WHERE page_id = UNHEX('<id>') AND catalogitem_id = UNHEX('<catId>');";
+    		
+			$selectSql = str_replace('<id>', bin2hex($pageId), $selectSql);
+			$selectSql = str_replace('<catId>', bin2hex($title->hash), $selectSql);
+			
+			$insertSql = str_replace('<id>', bin2hex($pageId), $insertSql);
+    		$insertSql = str_replace('<catId>', bin2hex($title->hash), $insertSql);
+			
+    		$updateSql = str_replace('<id>', bin2hex($pageId), $updateSql);
+    		$updateSql = str_replace('<catId>', bin2hex($title->hash), $updateSql);
+		
+		    $result = $wpdb->query($selectSql);
+		    
+		    if($result === FALSE) {
+		    	return false;
+		    }
+		    
+			if($result == 0) {
+				$result = $wpdb->query($wpdb->prepare($insertSql, $title->position, $nofollow));
+			} else {
+		    	$result = $wpdb->query($wpdb->prepare($updateSql, $title->position, $nofollow));
+		    	
+		    	if($result === FALSE) {
+		    		return false;
+		    	}
+		    }
+    	} else {
+    		_log("Missing properties: hash, position");
     	}
-    }
-
-
-    $values = substr($values, 0, -1);
-
-    $sql .= $values;
-
-    $sql .= 'ON DUPLICATE KEY UPDATE catalogitem_id=VALUES(catalogitem_id)';
-
-    if ($wpdb->query($sql) === FALSE) {
-    	throw new Exception("Failed to insert into LFW_PageAssignment: ".mysql_error($wpdb->dbh), null);
-    }
+    }    
 }
 
 function lovefilm_ws_get_pagehash()
@@ -529,10 +552,10 @@ function lovefilm_ws_usage_data($uid=null, $data)
 
     $content = array_merge(array("uid" => $uid), $data);
     $response = lovefilm_http_call($path, "POST", $content);
-
+	/*
     if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
         return false;
-
+	*/
     return (int) $response['body'];
 }
 
@@ -553,84 +576,47 @@ function lovefilm_ws_change_context($context)
 
     $response = lovefilm_http_call($path, 'PUT', $content);
 
-    if(lovefilm_ws_check_status(200, $response))
-    {
-        $wpdb->query('truncate LFW_CatalogItem');
-        $wpdb->query('truncate LFW_Page');
-        $wpdb->query('truncate LFW_PageAssignment');
+    $wpdb->query('truncate LFW_CatalogItem');
+    $wpdb->query('truncate LFW_Page');
+    $wpdb->query('truncate LFW_PageAssignment');
 
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
 function lovefilm_http_call($path, $method, $content=null)
 {
 	global $servername;
-
-    $origTime = ini_get('max_execution_time');
-
-    ini_set('max_execution_time', 5000);
-
-    if(!is_null($content) && !is_array($content))
+    
+	if(!is_null($content) && !is_array($content))
         throw new InvalidArgumentException("Content must be an array");
-
-    $method = strtoupper($method);
-
-    if($method == "POST")
-    {
-        // Query Params in the Content Header for POST & PUT
-        if(!is_null($content))
-        {
-            $opts['http'] = array(
-            'method' => $method,
-            'header' => 'Content-Type: application/x-www-form-urlencoded',
-            'content' => http_build_query($content, '', '&'),
-            'timeout' => 60,
-            'ignore_errors' => true,
-            );
-        }
-    }
-    else
-    {
-        // Set the Query Method
-        $opts['http'] = array('method' => $method);
-
-        // Query params in the URI for GET and DELETE
-        if(!is_null($content))
-        {
-            $contentAr = array();
-            foreach($content as $key => $value)
-            {
-                $contentAr[] = $key . "=" . urlencode($value);
-            }
-
-            $path .= "?" . implode('&', $contentAr);
-        }
-    }
-    
-    $ctx = stream_context_create($opts);
-    $fh = @fopen(LOVEFILM_WS_API_URL . $path, 'r', false, $ctx);
-    if(is_null($fh) || !$fh)
-    {
-        throw new LoveFilmWebServiceNotFoundException(LOVEFILM_WS_API_URL . $path);
-    }
-    $meta = stream_get_meta_data($fh);
-    $body = stream_get_contents($fh);
-    fclose($fh);
-
-    /* Dump the HTTP Request and Response to the debug.log */
-    _log("HTTP Request:\n".LOVEFILM_WS_API_URL . $path."\n".var_export($opts, true));
-    lovefilm_log_http_response($meta, $body);
-    
-    if(!is_array($meta))
-        throw new Exception("No headers returned");
-
-    if(array_key_exists('headers', $meta['wrapper_data']))
-    	$meta['wrapper_data'] = $meta['wrapper_data']['headers'];
-    	 
-    return array("meta" => $meta['wrapper_data'], "body" => $body);
+	
+	switch(strtoupper($method)) {
+		case "GET":
+			if(!is_null($content))
+				$path .= "?".http_build_query($content, '', '&');
+			$response = wp_remote_get(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT));
+			break;
+			
+		case "POST":
+			$response = wp_remote_post(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'body' => http_build_query($content, '', '&')));
+			break;
+			
+		case "DELETE":
+			if(!is_null($content))
+				$path .= "?".http_build_query($content, '', '&');
+			$response = wp_remote_request(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'method' => strtoupper($method)));
+			break;
+			 
+		default:
+			$response = wp_remote_request(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'method' => strtoupper($method), 'body' => http_build_query($content, '', '&')));
+	}
+	if(is_wp_error($response)) {
+		throw new LoveFilmWebServiceNotFoundException($response->get_error_message()."\n".LOVEFILM_WS_API_URL . $path);
+	}
+	$headers = wp_remote_retrieve_headers($response);
+	$body    = wp_remote_retrieve_body($response);
+	
+	return array('meta' => $headers, 'body' => $body);
 }
 
 function lovefilm_log_http_response($meta, $body)
@@ -651,6 +637,9 @@ function lovefilm_log_http_response($meta, $body)
 			$d .= $key." = ".$val."\n";
 		}
 	}
+	if(array_key_exists('headers', $meta))
+		$d .= "\n\n".var_export($meta['headers'],true);
+		
 	$d .= "\n\n".$body;    
     _log("HTTP Response:\n".$d);
 }
@@ -660,7 +649,7 @@ function lovefilm_ws_check_status($statusCode, $response)
 	if(is_null($response))
 		return false;
 		
-    if(!preg_match("/HTTP\/1\.1 $statusCode /", $response['meta'][0]))
+    if(array_key_exists('meta', $response) && count($response['meta'])>0 && !preg_match("/HTTP\/1\.1 $statusCode /", $response['meta'][0]))
         return false;
 
     return true;
@@ -689,15 +678,11 @@ function lovefilm_ws_get_marketing_msg()
 	    	$content = array();
 	    
 	    	$response = lovefilm_http_call($path, "GET", $content);
-		    if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-		    {
-		    	$marketingMsg = lovefilm_ws_get_default_marketing_msg();
-		    } else {
-		    	$marketingMsg = json_decode($response['body']);
-		    	update_option('lovefilm-marketing-message', $marketingMsg);
-		    }
+	    	
+	    	$marketingMsg = json_decode($response['body']);
+	    	update_option('lovefilm-marketing-message', $marketingMsg);
 	    } catch(Exception $e) {
-	    	$marketingMsg = NULL;
+	    	$marketingMsg = lovefilm_ws_get_default_marketing_msg();
 	    	update_option('lovefilm-marketing-message', "");
 	    }
 	}
@@ -723,13 +708,13 @@ function lovefilm_ws_get_promo_code()
 	    try {
 			$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_PROMO_CODE);
 	    	$response = lovefilm_http_call($path, "GET", NULL);
-			if(lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-			{
+			//if(lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
+			//{
 				parse_str($response['body'], $results);
 				if(!array_key_exists('promoCode', $results))
 					throw new Exception("No promoCode passed in response");
 				$promoCode = $results['promoCode'];
-			}
+			//}
 	    } catch(Exception $e)
 	    {
 	    	_log($e);
@@ -739,3 +724,28 @@ function lovefilm_ws_get_promo_code()
 	return $promoCode;
 }
 
+if(!function_exists('http_build_query')) {
+    function http_build_query($data,$prefix=null,$sep='',$key='') {
+        $ret = array();
+        foreach((array)$data as $k => $v) {
+        	$k = urlencode($k);
+            if(is_int($k) && $prefix != null) {
+            	$k = $prefix.$k;
+            }
+            if(!empty($key)) {
+            	$k = $key."[".$k."]";
+            }
+
+            if(is_array($v) || is_object($v)) {
+            	array_push($ret,http_build_query($v,"",$sep,$k));
+            } else {
+                array_push($ret,$k."=".urlencode($v));
+            }
+         }
+        if(empty($sep)) {
+            $sep = ini_get("arg_separator.output");
+        }
+
+        return implode($sep, $ret);
+	};
+};
