@@ -54,13 +54,10 @@ function lovefilm_admin_collect_useage_data()
     if(is_array($options) && array_key_exists('context', $options) && !is_string($options['context']))
     	$context = $options['context'];
 
-    $vHandle = fopen(dirname(__FILE__) . '/ver', 'r');
-    $version = fgets($vHandle);
-    fclose($vHandle);
 
     $data = array(
              'context' => $context,
-             'version' => $version
+             'version' => LOVEFILM_WIDGET_VERSION
             );
     
     return $data;
