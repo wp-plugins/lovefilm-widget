@@ -1,9 +1,9 @@
 === LOVEFiLM Widget ===
-Contributors: LOVEFiLM
+Contributors: LOVEFiLM-widgets
 Requires at least: 2.8.0
 Tested up to: 3.1.0
-Tags: Media, Movies, Games
-Stable Tag: 1.7
+Tags: Film, Films, Games, Media, Affiliate
+Stable Tag: 1.0.8
 
 This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog.
 
