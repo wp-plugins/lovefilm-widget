@@ -601,6 +601,12 @@ function lovefilm_http_call($path, $method, $content=null)
 			$response = wp_remote_post(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'body' => http_build_query($content, '', '&')));
 			break;
 			
+		case "PUT":
+			if(!is_null($content))
+				$path .= "?".http_build_query($content, '', '&');
+			$response = wp_remote_request(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'method' => strtoupper($method)));
+			break;
+
 		case "DELETE":
 			if(!is_null($content))
 				$path .= "?".http_build_query($content, '', '&');
