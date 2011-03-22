@@ -3,14 +3,14 @@ Contributors: LOVEFiLM-widgets
 Requires at least: 2.8.0
 Tested up to: 3.1.0
 Tags: Film, Films, Games, Media, Affiliate
-Stable Tag: 1.0.11
+Stable Tag: 1.0.12
 
 This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog.
 
 == Description ==
 
 This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog. Monetise your blog by promoting the latest and most popular movies or games with LOVEFiLM's affiliate program.
-For More Information Click here. (LINK to: http://www.lovefilm.com/partnership/widgets)
+For More Information [Click here](http://www.lovefilm.com/partnership/widgets).
 
 == Installation ==
 
