@@ -26,6 +26,7 @@ class Lovefilm_Widget extends WP_Widget
 
         if(is_null($titlesPresent) || empty($titlesPresent))
         {
+        	_log("NO TITLES FOUND IN CACHE, CALLING WEB SERVICE");
             // No titles for this page in the database.
             // Call webservice for titles and store them in the DB.
             try
@@ -33,10 +34,15 @@ class Lovefilm_Widget extends WP_Widget
                 $titles = lovefilm_ws_get_embedded_titles_ws();
 
                 if(count($titles) == 0)
+                {
+                	_log("NO TITLES RETURNED FROM WEB SERVICE, THROWING EXCEPTION");
                     throw new LoveFilmWebServiceException('Failed to collect embedded titles');
-
+                }
+                
+                _log("TITLES RETURNED FROM WEB SERVICE, SETTING TITLES IN CACHE");
                 lovefilm_ws_set_embedded_titles_db($titles);
                 $titles = lovefilm_ws_get_embedded_titles_db();
+                _log("TITLES SET IN CACHE, SUCCESS");
                 $embed_status == Lovefilm_Widget::SERVICE_SUCCESS;
             }
             catch(Exception $e)
@@ -47,6 +53,7 @@ class Lovefilm_Widget extends WP_Widget
         }
         else
         {
+        	_log("TITLES IN CACHE, PULLING FROM CACHE");
             $titles = lovefilm_ws_get_embedded_titles_db();
         }
         

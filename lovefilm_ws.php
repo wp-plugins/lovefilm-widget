@@ -44,62 +44,73 @@ class UIDIsNullException extends LoveFilmWebServiceException
 
 function lovefilm_ws_service_end_points()
 {
-	try {
-   		$response = lovefilm_http_call("/", "GET");
+ 	$response = wp_remote_get(LOVEFILM_WS_API_URL, array());
+
+ 	if(is_wp_error($response)) {
+ 		_log("lovefilm_ws_service_end_points: ".$response->get_error_messages());
+		return false; 	
 	}
-	catch(Exception $e) {
+
+	if(wp_remote_retrieve_response_code($response) < 200 && wp_remote_retrieve_response_code($response) >= 300) {
+		_log("lovefilm_ws_register_uid: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
 		return false;
 	}
-
-    $services = array();
-    if(array_key_exists('link', $response['meta'])) {
-    	$links = explode(",", $response['meta']['link']);
-        foreach($links as $link)
-        {
-            $rel = null;
-            $href = null;
-
-            if(preg_match("/rel=\"(.+)\"/", $link, $matches))
-                $rel = $matches[1];
-
-            if(preg_match("/\<(.+)\>/", $link, $matches))
-                $href = $matches[1];
-
-            if($rel && $href)
-                $services[$rel] = $href;
-        }
+	
+	$headers = wp_remote_retrieve_headers($response);
+	
+    if(!array_key_exists('link', $headers)) {
+    	_log("lovefilm_ws_service_end_points: Could not locate Link header in response\n".var_export($headers, true));
+    	return false;
     }
     
-    update_option('lovefilm-ws-endpoints', $services);
+	$services = array();
+	$links = explode(",", $headers['link']);
+    foreach($links as $link)
+	{
+        $rel = null;
+        $href = null;
+
+		if(preg_match("/rel=\"(.+)\"/", $link, $matches))
+			$rel = $matches[1];
+
+		if(preg_match("/\<(.+)\>/", $link, $matches))
+			$href = $matches[1];
+
+		if($rel && $href)
+			$services[$rel] = LOVEFILM_WS_API_URL.$href;
+	}
+	update_option('lovefilm-ws-endpoints', $services);
+    return true;
 }
 
 function lovefilm_ws_register_uid()
 {
 	// Ensure that the UID is wiped first
-	update_option('lovefilm-uid', NULL);
+	//update_option('lovefilm-uid', NULL);
 	
 	$path     = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_REGISTER_PLUGIN);
     $domain   = get_option('siteurl');
-    $response = lovefilm_http_call($path, "POST", array('domain' => $domain));
+	
+	$args = array();
+	$args['headers'] = array('Content-Type'=>'application/x-www-form-urlencoded');
+	$args['body'] = http_build_query(array('domain' => $domain), '', '&');
+    $response = wp_remote_post($path, $args);
 
-    /*
-    if(lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_BAD, $response))
+    if(is_wp_error($response))
     {
-        throw new LoveFilmWebServiceErrorException("SiteUrl setting is invalid");
+    	_log("lovefilm_ws_register_uid: ".implode("\n", $response->get_error_messages()));
+    	return false;
     }
-    elseif(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-    {
-        throw new LoveFilmWebServiceErrorException("Response not Okay");
+
+    if(wp_remote_retrieve_response_code($response) >= 200 && wp_remote_retrieve_response_code($response) < 300) {
+    	$uid = wp_remote_retrieve_body($response);
+    	update_option('lovefilm-uid', $uid);
+    	_log("lovefilm_ws_register_uid: UID Recieved from WebService for domain '".$domain."' = ". $uid);
+    	return $uid;
     }
-	*/
-    
-    $uid = $response['body'];
-    
-    update_option('lovefilm-uid', $uid);
 
-    _log("UID Recieved from WebService: ". $uid);
-
-    return $uid;
+    _log("lovefilm_ws_register_uid: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
+    return false;
 }
 
 function lovefilm_ws_unregister_uid($uid)
@@ -113,12 +124,21 @@ function lovefilm_ws_unregister_uid($uid)
 		return false;    	
     }
 
-    $response = lovefilm_http_call($path, "DELETE", array("uid" => $uid));
-	/*
-    if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-        return false;
-	*/
-    return (int) $response['body'];
+    $path .= '?'.http_build_query(array('uid' => $uid), '', '&');
+    $response = wp_remote_request($path, array('method' => 'DELETE'));
+    
+    if(is_wp_error($response))
+    {
+    	_log("lovefilm_ws_unregister_uid: ".implode("\n", $response->get_error_messages()));
+    	return false;
+    }
+    
+    if(wp_remote_retrieve_response_code($response) >= 200 && wp_remote_retrieve_response_code($response) < 300) {
+    	return (int) wp_remote_retrieve_body($response);
+    }
+    
+    _log("lovefilm_ws_unregister_uid: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
+    return false;
 }
 
 /**
@@ -144,6 +164,10 @@ function lovefilm_ws_check_embedded_titles()
 
 /**
  * Queries the web service for titles assigned to this page.
+ * Notes that the context query var is not used by the webservice
+ * as part of this request, it is merely used to "trip" the HTTP
+ * proxy into serving the right cached result.
+ * 
  * @throws LoveFilmBadServiceEndpointException
  * @throws LoveFilmWebServiceNotFoundException
  * @return array
@@ -152,22 +176,35 @@ function lovefilm_ws_get_embedded_titles_ws()
 {
    	$path   = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_ASSIGNED_TITLES);
     $uid    = get_option('lovefilm-uid');
-    if(is_null($uid))
+    $context = get_option('lovefilm_context');
+    if(is_null($uid) || $uid === FALSE)
+    {
+    	_log("lovefilm_ws_get_embedded_titles_ws: UID is NULL");
     	throw new UIDIsNullException();
-    	
-    _log("lovefilm_ws_get_embedded_titles_ws: ".var_export($uid, true));
+    }
     
     $reqUri = lovefilm_ws_get_page();
-   	$response = lovefilm_http_call($path, "GET", array("id" => $uid,
-            "page" => $reqUri));
-/*
-    if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-		throw new LoveFilmWebServiceErrorException();
- */  
-   	$titles = lovefilm_ws_parse_titles($response['body']);
     
+	$path .= "?".http_build_query(array("id" => $uid, "page" => $reqUri, "context" => $context), '', '&');
+	$response = wp_remote_get($path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT));
+	
+   	if(is_wp_error($response))
+   	{
+   		_log("lovefilm_ws_get_embedded_titles_ws Error: ".implode("\n", $response->get_error_messages()));
+   		throw new LoveFilmWebServiceErrorException(implode("\n", $response->get_error_messages()), -1);
+   	}
+   		
+   	if(wp_remote_retrieve_response_code($response) < 200 && wp_remote_retrieve_response_code($response) >=300)
+   	{
+   		_log("lovefilm_ws_get_embedded_titles_ws Not OK: ".wp_remote_retrieve_response_message($response)." ".wp_remote_retrieve_response_code($response));
+   		throw new LoveFilmWebServiceErrorException(wp_remote_retrieve_response_message($response), wp_remote_retrieve_response_code($response));
+   	}
+   	
+   	return lovefilm_ws_parse_titles(wp_remote_retrieve_body($response));
+}
 
-    return $titles;
+function lovefilm_debug_log_request($r, $url) {
+	_log("HTTP Request:\n\n".$url."\n\n".print_r($r, true)."\n\n");
 }
 
 /**
@@ -528,7 +565,8 @@ function lovefilm_ws_get_pagehash()
 function lovefilm_ws_get_page()
 {
     $domain = get_option('siteurl');
-    $page   = $domain . $_SERVER['REQUEST_URI'];
+    $p = parse_url($domain);
+    $page   = $p['scheme']."://".$p['host'].$_SERVER['REQUEST_URI'];
     return $page;
 }
 
@@ -551,12 +589,22 @@ function lovefilm_ws_usage_data($uid=null, $data)
     }
 
     $content = array_merge(array("uid" => $uid), $data);
-    $response = lovefilm_http_call($path, "POST", $content);
-	/*
-    if(!lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-        return false;
-	*/
-    return (int) $response['body'];
+	$args = array();
+	$args['headers'] = array('Content-Type'=>'application/x-www-form-urlencoded');
+	$args['body'] = http_build_query($content, '', '&');
+    $response = wp_remote_post($path, $args);
+    
+ 	if(is_wp_error($response)) {
+ 		_log("lovefilm_ws_usage_data: ".$response->get_error_messages());
+		return false; 	
+	}
+
+	if(wp_remote_retrieve_response_code($response) < 200 && wp_remote_retrieve_response_code($response) >= 300) {
+		_log("lovefilm_ws_usage_data: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
+		return false;
+	}
+    
+    return (int) wp_remote_retrieve_body($response);
 }
 
 function lovefilm_ws_change_context($context)
@@ -569,85 +617,40 @@ function lovefilm_ws_change_context($context)
     	return false;
 	}
 
+	$uid = get_option('lovefilm-uid');
+	
+	if($uid == NULL) {
+		_log("lovefilm_ws_change_context: UID is NULL");
+		return false;
+	}
+	
     $content = array(
                     'context' => $context,
-                    'id' => get_option('lovefilm-uid')
+                    'id' => $uid
                     );
 
-    $response = lovefilm_http_call($path, 'PUT', $content);
+	$path .= "?".http_build_query($content, '', '&');
+	$response = wp_remote_request($path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'method' => 'PUT'));
 
-    $wpdb->query('truncate LFW_CatalogItem');
-    $wpdb->query('truncate LFW_Page');
-    $wpdb->query('truncate LFW_PageAssignment');
+	_log(var_export($response, true));
+	
+	if(is_wp_error($response))
+	{
+		_log("lovefilm_ws_change_context: ".implode("\n", $response->get_error_messages()));
+		return false;
+	}
+	
+   	if(wp_remote_retrieve_response_code($response) != 200)
+   	{
+   		_log("lovefilm_ws_change_context: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
+   		return false;
+   	}	
+
+    $wpdb->query('DELETE FROM LFW_CatalogItem');
+    $wpdb->query('DELETE FROM LFW_Page');
+    $wpdb->query('DELETE FROM LFW_PageAssignment');
 
     return true;
-}
-
-function lovefilm_http_call($path, $method, $content=null)
-{
-	global $servername;
-    
-	if(!is_null($content) && !is_array($content))
-        throw new InvalidArgumentException("Content must be an array");
-	
-	switch(strtoupper($method)) {
-		case "GET":
-			if(!is_null($content))
-				$path .= "?".http_build_query($content, '', '&');
-			$response = wp_remote_get(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT));
-			break;
-			
-		case "POST":
-			$response = wp_remote_post(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'body' => http_build_query($content, '', '&')));
-			break;
-			
-		case "PUT":
-			if(!is_null($content))
-				$path .= "?".http_build_query($content, '', '&');
-			$response = wp_remote_request(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'method' => strtoupper($method)));
-			break;
-
-		case "DELETE":
-			if(!is_null($content))
-				$path .= "?".http_build_query($content, '', '&');
-			$response = wp_remote_request(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'method' => strtoupper($method)));
-			break;
-			 
-		default:
-			$response = wp_remote_request(LOVEFILM_WS_API_URL.$path, array('timeout'=>LOVEFILM_HTTP_TIMEOUT, 'method' => strtoupper($method), 'body' => http_build_query($content, '', '&')));
-	}
-	if(is_wp_error($response)) {
-		throw new LoveFilmWebServiceNotFoundException($response->get_error_message()."\n".LOVEFILM_WS_API_URL . $path);
-	}
-	$headers = wp_remote_retrieve_headers($response);
-	$body    = wp_remote_retrieve_body($response);
-	
-	return array('meta' => $headers, 'body' => $body);
-}
-
-function lovefilm_log_http_response($meta, $body)
-{
-    $d = "";
-	foreach($meta as $key=>$val)
-	{
-		if(is_array($val))
-		{
-			$d .= $key."\n";
-			foreach($val as $key2=>$val2)
-			{
-				$d .= "\t".$key2." = ".$val2."\n";
-			}
-		}
-		else
-		{
-			$d .= $key." = ".$val."\n";
-		}
-	}
-	if(array_key_exists('headers', $meta))
-		$d .= "\n\n".var_export($meta['headers'],true);
-		
-	$d .= "\n\n".$body;    
-    _log("HTTP Response:\n".$d);
 }
 
 function lovefilm_ws_check_status($statusCode, $response)
@@ -678,19 +681,25 @@ function lovefilm_ws_get_marketing_msg()
     $marketingMsg = get_option('lovefilm-marketing-message');
 	if(is_null($marketingMsg) || $marketingMsg===FALSE || (is_string($marketingMsg) && strlen($marketingMsg)==0))
 	{
-	    try {
-	    	$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_MARKETING_MSG);
+    	$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_MARKETING_MSG);
 
-	    	$content = array();
-	    
-	    	$response = lovefilm_http_call($path, "GET", $content);
+    	$response = wp_remote_get($path, array());
 	    	
-	    	$marketingMsg = json_decode($response['body']);
-	    	update_option('lovefilm-marketing-message', $marketingMsg);
-	    } catch(Exception $e) {
-	    	$marketingMsg = lovefilm_ws_get_default_marketing_msg();
-	    	update_option('lovefilm-marketing-message', "");
-	    }
+    	if(is_wp_error($response)) {
+    		_log("lovefilm_ws_get_marketing_msg: ".implode("\n", $response->get_error_messages()));
+    		$marketingMsg = lovefilm_ws_get_default_marketing_msg();
+    		update_option('lovefilm-marketing-message', "");
+    	}
+    	
+    	if(wp_remote_retrieve_response_code($response) >= 200 && wp_remote_retrieve_response_code($response) < 300)
+    	{
+    		_log("lovefilm_ws_get_marketing_msg: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
+    		$marketingMsg = lovefilm_ws_get_default_marketing_msg();
+    		update_option('lovefilm-marketing-message', "");
+    	}
+	    	
+    	$marketingMsg = json_decode($response['body']);
+    	update_option('lovefilm-marketing-message', $marketingMsg);
 	}
 	return $marketingMsg;
 }
@@ -711,21 +720,23 @@ function lovefilm_ws_get_promo_code()
 	$promoCode = get_option('lovefilm-promo-code');
 	if($promoCode===FALSE || (is_string($promoCode) && strlen($promoCode)==0))
 	{
-	    try {
-			$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_PROMO_CODE);
-	    	$response = lovefilm_http_call($path, "GET", NULL);
-			//if(lovefilm_ws_check_status(LOVEFILM_HTTP_STATUS_OK, $response))
-			//{
-				parse_str($response['body'], $results);
-				if(!array_key_exists('promoCode', $results))
-					throw new Exception("No promoCode passed in response");
-				$promoCode = $results['promoCode'];
-			//}
-	    } catch(Exception $e)
-	    {
-	    	_log($e);
-	    	$promoCode = NULL;
-	    }
+		$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_PROMO_CODE);
+    	$response = wp_remote_get($path, array());
+    	
+    	if(is_wp_error($response)) {
+    		_log("lovefilm_ws_get_promo_code: ".implode("\n", $response->get_error_messages()));
+    		return NULL;
+    	}
+    	
+    	if(wp_remote_retrieve_response_code($response) >= 200 && wp_remote_retrieve_response_code($response) < 300) {
+    		_log("lovefilm_ws_get_promo_code: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
+    		return NULL;
+    	}
+    	
+		parse_str($response['body'], $results);
+		if(!array_key_exists('promoCode', $results))
+			throw new Exception("No promoCode passed in response");
+		$promoCode = $results['promoCode'];
 	}
 	return $promoCode;
 }

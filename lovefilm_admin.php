@@ -151,11 +151,11 @@ function lovefilm_input_widget_type()
 
     $select = '<select name="lovefilm-settings[type]" id="lovefilm_settings_type">';
 
-    $select .= ( $selected == 'affiliate') ? '<option value="affiliate" selected="affiliate">Affiliate</option>' : '<option value="affiliate">Affiliate</option>';
+    $select .= ( $selected == LOVEFILM_WIDGET_MODE_AFFILIATE) ? '<option value="'.LOVEFILM_WIDGET_MODE_AFFILIATE.'" selected="'.LOVEFILM_WIDGET_MODE_AFFILIATE.'">'.LOVEFILM_WIDGET_MODE_AFFILIATE.'</option>' : '<option value="'.LOVEFILM_WIDGET_MODE_AFFILIATE.'">'.LOVEFILM_WIDGET_MODE_AFFILIATE.'</option>';
 
-    $select .= ( $selected == 'vanity') ? '<option value="vanity" selected="vanity">Vanity</option>' : '<option value="vanity">Vanity</option>';
+    $select .= ( $selected == LOVEFILM_WIDGET_MODE_VANITY) ? '<option value="'.LOVEFILM_WIDGET_MODE_VANITY.'" selected="'.LOVEFILM_WIDGET_MODE_VANITY.'">'.LOVEFILM_WIDGET_MODE_VANITY.'</option>' : '<option value="'.LOVEFILM_WIDGET_MODE_VANITY.'">'.LOVEFILM_WIDGET_MODE_VANITY.'</option>';
 
-    $select .= ( $selected == 'contextual') ? '<option value="contextual" selected="contextual">Contextual</option>' : '<option value="contextual">Contextual</option>';
+    $select .= ( $selected == LOVEFILM_WIDGET_MODE_CONTEXT) ? '<option value="'.LOVEFILM_WIDGET_MODE_CONTEXT.'" selected="'.LOVEFILM_WIDGET_MODE_CONTEXT.'">'.LOVEFILM_WIDGET_MODE_CONTEXT.'</option>' : '<option value="'.LOVEFILM_WIDGET_MODE_CONTEXT.'">'.LOVEFILM_WIDGET_MODE_CONTEXT.'</option>';
     $select .= '</select>';
 
     echo $select;
@@ -171,14 +171,14 @@ function lovefilm_input_widget_theme()
     }
     else
     {
-    	$selected = 'light';
+    	$selected = LOVEFILM_THEME_LIGHT;
     }
     
     $select = '<select name="lovefilm-settings[theme]" id="lovefilm_settings_theme">';
 
-    $select .= ( $selected == 'light') ? '<option value="light" selected="selected">Light</option>' : '<option value="light">Light</option>';
+    $select .= ( $selected == LOVEFILM_THEME_LIGHT) ? '<option value="'.LOVEFILM_THEME_LIGHT.'" selected="selected">'.LOVEFILM_THEME_LIGHT.'</option>' : '<option value="'.LOVEFILM_THEME_LIGHT.'">'.LOVEFILM_THEME_LIGHT.'</option>';
 
-    $select .= ( $selected == 'dark') ? '<option value="dark" selected="selected">Dark</option>' : '<option value="dark">Dark</option>';
+    $select .= ( $selected == LOVEFILM_THEME_DARK) ? '<option value="'.LOVEFILM_THEME_DARK.'" selected="selected">'.LOVEFILM_THEME_DARK.'</option>' : '<option value="'.LOVEFILM_THEME_DARK.'">'.LOVEFILM_THEME_DARK.'</option>';
 
     $select .= '</select>';
 
@@ -191,8 +191,8 @@ function lovefilm_input_widget_context()
     $selected = $options['context'];
 
     $select = '<select name="lovefilm-settings[context]" >';
-    $select .= ( $selected == 'films') ? '<option value="films" selected="f">Film</option>' : '<option value="films">Film</option>';
-    $select .= ( $selected == 'games') ? '<option value="games" selected="g">Game</option>' : '<option value="games">Game</option>';
+    $select .= ( $selected == LOVEFILM_CONTEXT_FILM) ? '<option value="'.LOVEFILM_CONTEXT_FILM.'" selected="f">'.LOVEFILM_CONTEXT_FILM.'</option>' : '<option value="'.LOVEFILM_CONTEXT_FILM.'">'.LOVEFILM_CONTEXT_FILM.'</option>';
+    $select .= ( $selected == LOVEFILM_CONTEXT_GAME) ? '<option value="'.LOVEFILM_CONTEXT_GAME.'" selected="g">'.LOVEFILM_CONTEXT_GAME.'</option>' : '<option value="'.LOVEFILM_CONTEXT_GAME.'">'.LOVEFILM_CONTEXT_GAME.'</option>';
     $select .= '</select>';
 
     echo $select;
@@ -332,18 +332,12 @@ function lovefilm_validate_settings($input)
 
     if(!$error)
     {
-        $options = get_option('lovefilm-settings');
+    	// context switch has occured.
+        $shiftResult = lovefilm_ws_change_context($validInput['context']);
 
-        if($validInput['context'] != $options['context'])
+        if($shiftResult === TRUE)
         {
-            // context switch has occured.
-            $shiftResult = lovefilm_ws_change_context($validInput['context']);
-
-            if(!$shiftResult)
-            {
-                // Remote context change failed - triggering this error stops the wp-option being updated.
-                $validInput['context'] = $options['context'];
-            }
+        	update_option('lovefilm_context', $validInput['context']);
         }
     }
 

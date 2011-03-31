@@ -39,11 +39,10 @@ function lovefilm_activate() {
 	}
 	
 	// Check that we can make HTTP requests
-	try {
-		$response = lovefilm_http_call("/", "GET");
-	} catch(Exception $e) {
+	$response = wp_remote_get(LOVEFILM_WS_API_URL, "GET");
+	if(is_wp_error($response)) {
 		$message = "<h1>The LOVEFiLM Widget cannot connect to the LOVEFiLM Webservice.</h1><p>The LOVEFiLM Widget is having problems activating itself with the LOVEFiLM Webservice. Please try activating the plug-in again. If this problem persists, please check your WordPress, PHP and Web Server configuration to ensure that WordPress plug-ins have access to the web.</p>";
-		$message .= "<p><pre>".$e->getMessage()."</pre></p>";
+		$message .= "<p><pre>".implode("<br>\n", $response->get_error_messages())."</pre></p>";
 		if(function_exists('deactivate_plugins') )
 			deactivate_plugins(dirname(__FILE__).DIRECTORY_SEPARATOR."lovefilm.php");
 		wp_die($message);
@@ -54,12 +53,20 @@ function lovefilm_activate() {
     delete_option('lovefilm');
     error_log("Love film Activated");
     
+    $success = lovefilm_ws_service_end_points();
+    if($success === FALSE) {
+		$message = "<h1>The LOVEFiLM Widget was unable to retrieve service details from the LOVEFiLM Webservice.</h1><p>The LOVEFiLM Widget is having problems updating itself with the latest details of the LOVEFiLM Webservice. Please try activating the plug-in again. If this problem persists, please check your WordPress, PHP and Web Server configuration to ensure that WordPress plug-ins have access to the web.</p>";
+		if(function_exists('deactivate_plugins') )
+			deactivate_plugins(dirname(__FILE__).DIRECTORY_SEPARATOR."lovefilm.php");
+		wp_die($message);
+    }
+
+    
     //Activates the Scheduler for lovefilm cron job 
     wp_schedule_event(mktime(date('H'),0,0,date('m'),date('d'),date('Y')), 'lf_cron_day', 'lovefilm_cron');
     
-    try {
-    	lovefilm_ws_service_end_points();
     
+    try {
     	if(!get_option('lovefilm_domain'))
     	{
 	        add_option('lovefilm_domain', '');
@@ -136,17 +143,17 @@ function lovefilm_uninstall_tables()
  */
 function lovefilm_init_options()
 {
-	if(get_option('lovefilm_context')===FALSE)
+	//if(get_option('lovefilm_context')===FALSE)
 		update_option('lovefilm_context', LOVEFILM_DEFAULT_CONTEXT);
 		
-	if(get_option('lovefilm-marketing-message')===FALSE)
+	//if(get_option('lovefilm-marketing-message')===FALSE)
 		update_option('lovefilm-marketing-message', NULL);
 
-	if(get_option('lovefilm-promo-code')===FALSE)
+	//if(get_option('lovefilm-promo-code')===FALSE)
 		update_option('lovefilm-promo-code', NULL);
 		
-	if(($res = get_option('lovefilm-settings'))===FALSE)
-	{
+	//if(($res = get_option('lovefilm-settings'))===FALSE)
+	//{
 		update_option('lovefilm-settings', array(
 											"context"             => LOVEFILM_DEFAULT_CONTEXT, 
 											"type"                => LOVEFILM_DEFAULT_MODE, 
@@ -154,7 +161,7 @@ function lovefilm_init_options()
 											"lovefilm_width_type" => LOVEFILM_DEFAULT_WIDTH_TYPE, 
 											"lovefilm_aff"        => LOVEFILM_DEFAULT_AFF));
 		
-	} else {
+	/*} else {
 		$defaultSettings = array();
 		
 		if(!array_key_exists("context", $res))
@@ -173,7 +180,7 @@ function lovefilm_init_options()
 			$defaultSettings["lovefilm_aff"] = LOVEFILM_DEFAULT_AFF;
 		
 		update_option('lovefilm-settings', $defaultSettings);
-	}
+	}*/
 }
 
 /**
@@ -207,6 +214,7 @@ function lovefilm_delete_options()
     delete_option('widget_lovefilm_widget');
     delete_option('lovefilm-marketing-message');
     delete_option('lovefilm-promo-code');
+    delete_option('lovefilm_context');
 }
 /**
  * Informs the LOVEFiLM Web Service that the plug-in for this
