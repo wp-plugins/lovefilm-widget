@@ -4,13 +4,13 @@ LFWidget.domain = '<?php echo get_option('lovefilm_domain') ?>';
 LFWidget.affid = '<?php echo (array_key_exists('lovefilm_aff', $widgetOpts))?$widgetOpts['lovefilm_aff']:''; ?>';
 LFWidget.theme = '<?php if(isset($widgetOpts['theme']) && !empty($widgetOpts['theme'])) echo $widgetOpts['theme']; ?>';
 LFWidget.lfid = '<?php echo $widgetId; ?>';
-LFWidget.promoCode = <?php echo (is_null($promoCode))?'null':'"'.$promoCode.'"'; ?>
-LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOpts['context']))?$widgetOpts['context']:'"'.LOVEFILM_DEFAULT_CONTEXT.'"'; ?>
+LFWidget.promoCode = <?php echo (is_null($promoCode))?'null':'"'.$promoCode.'"'; ?>;
+LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOpts['context']))?'"'.$widgetOpts['context'].'"':'"'.LOVEFILM_DEFAULT_CONTEXT.'"'; ?>;
 </script>
-<div id="lf-widget" <?php if(isset($widgetOpts['lovefilm_width']) && $widgetOpts != 'fluid') echo "style=\"width:{$widgetOpts['lovefilm_width']}px\""; ?>>
+<div id="lf-widget" class="widget" <?php if(isset($widgetOpts['lovefilm_width']) && $widgetOpts != 'fluid') echo "style=\"width:{$widgetOpts['lovefilm_width']}px\""; ?>>
     <div id="lf-wrapped" <?php if(isset($widgetOpts['theme']) && !empty($widgetOpts['theme'])) echo " class=\"{$widgetOpts['theme']}\""; ?>>
         <div class="header">
-            <h3><a href="http://www.lovefilm.com" target="_blank">LOVEFiLM</a></h3>
+            <h3><a href="http://www.lovefilm.com" target="_blank" class="logo">LOVEFiLM</a></h3>
             <p><?php if(!is_null($mrktMsg)): ?><a id="lf-message" href="<?php echo $mrktMsg->href; ?>" target="_blank"><?php echo $mrktMsg->anchor_text; ?></a><?php endif; ?></p>
         </div>
 

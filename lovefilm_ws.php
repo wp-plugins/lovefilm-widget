@@ -51,7 +51,7 @@ function lovefilm_ws_service_end_points()
 		return false; 	
 	}
 
-	if(wp_remote_retrieve_response_code($response) < 200 && wp_remote_retrieve_response_code($response) >= 300) {
+	if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
 		_log("lovefilm_ws_register_uid: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
 		return false;
 	}
@@ -194,7 +194,7 @@ function lovefilm_ws_get_embedded_titles_ws()
    		throw new LoveFilmWebServiceErrorException(implode("\n", $response->get_error_messages()), -1);
    	}
    		
-   	if(wp_remote_retrieve_response_code($response) < 200 && wp_remote_retrieve_response_code($response) >=300)
+   	if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >=300)
    	{
    		_log("lovefilm_ws_get_embedded_titles_ws Not OK: ".wp_remote_retrieve_response_message($response)." ".wp_remote_retrieve_response_code($response));
    		throw new LoveFilmWebServiceErrorException(wp_remote_retrieve_response_message($response), wp_remote_retrieve_response_code($response));
@@ -599,11 +599,11 @@ function lovefilm_ws_usage_data($uid=null, $data)
 		return false; 	
 	}
 
-	if(wp_remote_retrieve_response_code($response) < 200 && wp_remote_retrieve_response_code($response) >= 300) {
+	if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
 		_log("lovefilm_ws_usage_data: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
 		return false;
 	}
-    
+
     return (int) wp_remote_retrieve_body($response);
 }
 
@@ -679,6 +679,7 @@ function lovefilm_ws_get_marketing_msg()
 {
 	error_log('Cron job in MARKATING MESSAGES function.');
     $marketingMsg = get_option('lovefilm-marketing-message');
+
 	if(is_null($marketingMsg) || $marketingMsg===FALSE || (is_string($marketingMsg) && strlen($marketingMsg)==0))
 	{
     	$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_MARKETING_MSG);
@@ -691,11 +692,12 @@ function lovefilm_ws_get_marketing_msg()
     		update_option('lovefilm-marketing-message', "");
     	}
     	
-    	if(wp_remote_retrieve_response_code($response) >= 200 && wp_remote_retrieve_response_code($response) < 300)
+    	if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300)
     	{
     		_log("lovefilm_ws_get_marketing_msg: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
-    		$marketingMsg = lovefilm_ws_get_default_marketing_msg();
-    		update_option('lovefilm-marketing-message', "");
+    		$marketingMsg = (object)lovefilm_ws_get_default_marketing_msg();
+                update_option('lovefilm-marketing-message', "");
+                return $marketingMsg;
     	}
 	    	
     	$marketingMsg = json_decode($response['body']);
@@ -728,7 +730,7 @@ function lovefilm_ws_get_promo_code()
     		return NULL;
     	}
     	
-    	if(wp_remote_retrieve_response_code($response) >= 200 && wp_remote_retrieve_response_code($response) < 300) {
+    	if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
     		_log("lovefilm_ws_get_promo_code: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
     		return NULL;
     	}
@@ -738,6 +740,7 @@ function lovefilm_ws_get_promo_code()
 			throw new Exception("No promoCode passed in response");
 		$promoCode = $results['promoCode'];
 	}
+        
 	return $promoCode;
 }
 
