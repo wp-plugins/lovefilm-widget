@@ -63,7 +63,7 @@ function lovefilm_admin_collect_useage_data()
     return $data;
 }
 
-
+//required as part of the lovefilm_admin_register_settings.
 function lovefilm_section_main()
 {
 
@@ -350,10 +350,10 @@ function lovefilm_validate_settings($input)
 function lovefilm_admin_clearDbCache()
 {
 	// Clear marketing msg
-	update_option('lovefilm-marketing-message', "");        
+        error_log('Cron job in clearDbCache function.');
 	try {
     	$titles = lovefilm_ws_get_embedded_titles_ws();
-		lovefilim_clearall_pagetiltes();
+	lovefilim_clearall_pagetiltes();
     	lovefilm_ws_set_embedded_titles_db($titles);
 	} 
 	catch(Exception $e)
@@ -366,9 +366,10 @@ function lovefilm_admin_clearDbCache()
 // Runs the cron job action.
 add_action ('lovefilm_cron', 'lovefilm_admin_clearDbCache');
     
-    
-/*
+/**
  * Flush all the entries form the page table cache
+ * @global type $wpdb
+ * @return true
  */
 function lovefilim_clearall_pagetiltes()
 {
@@ -377,5 +378,4 @@ function lovefilim_clearall_pagetiltes()
 	$wpdb->query( $wpdb->prepare("DELETE FROM LFW_PageAssignment"));
 	$wpdb->query( $wpdb->prepare("DELETE FROM LFW_CatalogItem"));
 	return true;
-}
-    
+}  

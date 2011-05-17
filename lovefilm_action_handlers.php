@@ -9,13 +9,12 @@
  */
 require_once( 'lovefilm_ws_constants.php' );
 require_once( 'lovefilm_admin.php' );
-require_once( 'lovefilm_xmlrpc.php' );
 require_once( 'lovefilm_ws.php' );
 require_once( 'lovefilm_widget.php' );
 
 if ( !defined( 'WP_PLUGIN_URL' ))
 	define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
-define('MYWP_PLUGIN_URL', WP_PLUGIN_URL . '/lovefilm');
+
 
 define('LOVEFILM_WS_RESOURCES_URL', LOVEFILM_WS_URL.'widget');
 
@@ -63,7 +62,7 @@ function lovefilm_activate() {
 
     
     //Activates the Scheduler for lovefilm cron job 
-    wp_schedule_event(mktime(date('H'),0,0,date('m'),date('d'),date('Y')), 'lf_cron_day', 'lovefilm_cron');
+    wp_schedule_event(mktime(date('H'),0,0,date('m'),date('d'),date('Y')), 'cron_action_time', 'lovefilm_cron');
     
     
     try {
@@ -78,33 +77,17 @@ function lovefilm_activate() {
 		$usageData = lovefilm_admin_collect_useage_data();
 		// Send usage data to web service using UID
 		lovefilm_ws_usage_data($uid, $usageData);
+                
+                //This functions get the marketing message, fetch the titles and get the promocode during the activation of the widget.
+                _log("---starting to pre-populate cache");
+                lovefilm_ws_get_marketing_msg();
+                lovefilm_admin_clearDbCache();
+                lovefilm_ws_get_promo_code();
+                _log("---done pre-populate cache");
+                
     } catch(Exception $e) {
     	_log($e);
     }
-}
-
-function lovefilm_parse_configfile()
-{
-    
-    $path = dirname(__FILE__) . '/config';
-
-    $h = fopen($path, 'r');
-
-    while($line = fgets($h))
-    {
-        $ops = explode(':', $line);
-
-        if(count($ops) == 2)
-        {
-            update_option($ops[0], $ops[1]);
-        }
-        else
-        {
-            // NOOP
-        }
-    }
-
-    fclose($h);
 }
 
 function lovefilm_install_tables()
@@ -268,21 +251,6 @@ function lovefilm_admin_register_settings() {
     //add_settings_field('lovefilm_type', 'Widget Type', 'lovefilm_input_widget_type', 'lovefilm-settings-main', 'lovefilm_main');
 }
 
-/**
- * Registers new lovefilm specific methods on the
- * WordPress XML-RPC Service.
- * 
- * @param array $methods The XML-RPC methods.
- * @return array The array of XML-RPC methods.
- */
-function lovefilm_xmlrpc_methods( $methods ) {
-	$methods['lovefilm.setPromoCode']    = 'lovefilm_set_promo_code';
-	$methods['lovefilm.clearMessage']    = 'lovefilm_cache_clear_marketing_message';
-	$methods['lovefilm.clearPageCache']  = 'lovefilm_cache_clear_page';
-	$methods['lovefilm.clearAllCaches']  = 'lovefilm_cache_clear_all';
-	$methods['lovefilm.fetchUsageStats'] = 'lovefilm_fetch_usage_stats';
-	return $methods;
-}
 /**
  * Registers widgets.
  * Called via the action hook 'widgets_init'.
