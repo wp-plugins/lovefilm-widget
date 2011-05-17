@@ -3,7 +3,7 @@
  * Plugin Name: LOVEFiLM Widget
  * Plugin URI: http://www.lovefilm.com/partnership/widgets
  * Description: This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog. Monetise your blog by promoting the latest and most popular movies or games with LOVEFiLM's affiliate program.
- * Version: 1.0.15
+ * Version: 1.0.16
  * Author: LOVEFiLM-widgets
  * Author URI: http://profiles.wordpress.org/users/LOVEFiLM-widgets/
  * License: GPL2
@@ -28,7 +28,7 @@
  * The following constant is set by the build process
  */
 if(!defined('LOVEFILM_WIDGET_VERSION')) {
-	define('LOVEFILM_WIDGET_VERSION', "1.0.15");
+	define('LOVEFILM_WIDGET_VERSION', "1.0.16");
 }
 /*
  * Checkes the version of the Wordpress. if the version is less then 3.0 then it shows the the error message.
@@ -104,21 +104,15 @@ if(!class_exists('InvalidArgumentException')){
  * The cron job that runs according to specified time
  * the interval is 86400 = 60S*60M*24H
  */
+// Add cron interval of 60 seconds
+    function lovefilm_cronjob($lf_schedule) {
+        error_log('The cron interval in lovefilm');
+        $lf_schedule['cron_action_time'] = array(
+            'interval' => 86400,
+            'display' => 'Once a Minute'
+        );
 
-if(!function_exists('lovefilm_cronjob')) {
-	function lovefilm_cronjob( $schedules ) {
-	
-	    $interval = get_option('lf_cron_increment', 86400);
-	    // add a schedule to the existing set
-	    error_log('lovefilm cron interval is registered');
-		$schedules['lf_cron_day'] = array(
-			'interval' => $interval,
-			'display' => __('one minute')
-		);
-	    
-		return $schedules;
-	}
+          return $lf_schedule;
+    }
 
-	// Adds filter for the cron sheduler for
-	add_filter( 'cron_schedules', 'lovefilm_cronjob' );
-}
+    add_filter('cron_schedules', 'lovefilm_cronjob');

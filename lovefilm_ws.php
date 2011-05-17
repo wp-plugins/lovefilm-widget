@@ -34,6 +34,14 @@ class LoveFilmWebServiceNotFoundException extends LoveFilmWebServiceException
 {
 }
 
+class LoveFilmMarketingMessageNotFoundException extends LoveFilmWebServiceException
+{
+}
+
+class LoveFilmPromoCodeNotFoundException extends LoveFilmWebServiceException
+{
+}
+
 class LoveFilmWebServiceErrorException extends LoveFilmWebServiceException
 {
 }
@@ -174,7 +182,7 @@ function lovefilm_ws_check_embedded_titles()
  */
 function lovefilm_ws_get_embedded_titles_ws()
 {
-   	$path   = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_ASSIGNED_TITLES);
+   $path   = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_ASSIGNED_TITLES);
     $uid    = get_option('lovefilm-uid');
     $context = get_option('lovefilm_context');
     if(is_null($uid) || $uid === FALSE)
@@ -203,9 +211,6 @@ function lovefilm_ws_get_embedded_titles_ws()
    	return lovefilm_ws_parse_titles(wp_remote_retrieve_body($response));
 }
 
-function lovefilm_debug_log_request($r, $url) {
-	_log("HTTP Request:\n\n".$url."\n\n".print_r($r, true)."\n\n");
-}
 
 /**
  * Parses the XML returned from web service call into an annon object.
@@ -381,7 +386,7 @@ function lovefilm_ws_set_embedded_titles_db($titles)
     $pageHash = lovefilm_ws_get_pagehash();
 
     try {
-    	lovefilm_ws_insup_catalogitems($titles);
+            lovefilm_ws_insup_catalogitems($titles);
 	    lovefilm_ws_insup_assignments($pageHash, $titles);
 	    lovefilm_ws_insup_page($pageHash, $page);
     } catch(Exception $e) {
@@ -543,9 +548,9 @@ function lovefilm_ws_insup_assignments($pageId, $titles)
 		    }
 		    
 			if($result == 0) {
-				$result = $wpdb->query($wpdb->prepare($insertSql, $title->position, $nofollow));
+				$result = $wpdb->query($wpdb->prepare($insertSql, $title->position, $title->nofollow));
 			} else {
-		    	$result = $wpdb->query($wpdb->prepare($updateSql, $title->position, $nofollow));
+		    	$result = $wpdb->query($wpdb->prepare($updateSql, $title->position, $title->nofollow));
 		    	
 		    	if($result === FALSE) {
 		    		return false;
@@ -653,17 +658,6 @@ function lovefilm_ws_change_context($context)
     return true;
 }
 
-function lovefilm_ws_check_status($statusCode, $response)
-{
-	if(is_null($response))
-		return false;
-		
-    if(array_key_exists('meta', $response) && count($response['meta'])>0 && !preg_match("/HTTP\/1\.1 $statusCode /", $response['meta'][0]))
-        return false;
-
-    return true;
-}
-
 function lovefilm_ws_get_service_endpoint($rel)
 {
     $services = get_option('lovefilm-ws-endpoints');
@@ -674,36 +668,40 @@ function lovefilm_ws_get_service_endpoint($rel)
 
     return $services[$rel];
 }
-
+/**
+ * @desc This returns the cached Marketing message.
+ * @return type String 
+ */
+function lovefilm_ws_get_cached_marketing_msg()
+{
+    $marketingMsg = get_option('lovefilm-marketing-message');
+    
+    return $marketingMsg;
+}
+/**
+ * @desc This returns the marketing message from webservice and it depends on the lovefilm cron to update the cache.
+ * @return type string
+ */
 function lovefilm_ws_get_marketing_msg()
 {
-	error_log('Cron job in MARKATING MESSAGES function.');
-    $marketingMsg = get_option('lovefilm-marketing-message');
+	error_log('Cron job running in MARKATING MESSAGES function.');
 
-	if(is_null($marketingMsg) || $marketingMsg===FALSE || (is_string($marketingMsg) && strlen($marketingMsg)==0))
-	{
     	$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_GET_MARKETING_MSG);
-
     	$response = wp_remote_get($path, array());
 	    	
     	if(is_wp_error($response)) {
     		_log("lovefilm_ws_get_marketing_msg: ".implode("\n", $response->get_error_messages()));
-    		$marketingMsg = lovefilm_ws_get_default_marketing_msg();
-    		update_option('lovefilm-marketing-message', "");
+    		throw new LoveFilmMarketingMessageNotFoundException("WP Error retrieving marketing message: ".var_export($response, true));
     	}
     	
     	if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300)
     	{
     		_log("lovefilm_ws_get_marketing_msg: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
-    		$marketingMsg = (object)lovefilm_ws_get_default_marketing_msg();
-                update_option('lovefilm-marketing-message', "");
-                return $marketingMsg;
+    		throw new LoveFilmMarketingMessageNotFoundException("HTTP Error retrieving marketing message: ".var_export($response, true));
     	}
 	    	
     	$marketingMsg = json_decode($response['body']);
     	update_option('lovefilm-marketing-message', $marketingMsg);
-	}
-	return $marketingMsg;
 }
 
 // Runs the cron job
@@ -712,37 +710,36 @@ add_action ('lovefilm_cron', 'lovefilm_ws_get_marketing_msg');
 
 
 
-function lovefilm_ws_get_default_marketing_msg()
+function lovefilm_ws_get_cached_promo_code()
 {
-	return array('anchor_text'=>'Start a free trial &gt;', 'href'=>'http://www.lovefilm.com/');
+     return get_option('lovefilm-promo-code');
 }
-
 function lovefilm_ws_get_promo_code()
 {
-	$promoCode = get_option('lovefilm-promo-code');
-	if($promoCode===FALSE || (is_string($promoCode) && strlen($promoCode)==0))
-	{
-		$path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_PROMO_CODE);
-    	$response = wp_remote_get($path, array());
-    	
-    	if(is_wp_error($response)) {
-    		_log("lovefilm_ws_get_promo_code: ".implode("\n", $response->get_error_messages()));
-    		return NULL;
-    	}
-    	
-    	if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
-    		_log("lovefilm_ws_get_promo_code: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
-    		return NULL;
-    	}
-    	
-		parse_str($response['body'], $results);
-		if(!array_key_exists('promoCode', $results))
-			throw new Exception("No promoCode passed in response");
-		$promoCode = $results['promoCode'];
-	}
-        
-	return $promoCode;
+    error_log('Cron job running in PROMO-CODE function.');
+    $path = lovefilm_ws_get_service_endpoint(LOVEFILM_WS_REL_PROMO_CODE);
+    $response = wp_remote_get($path, array());
+
+    if(is_wp_error($response)) {
+        _log("lovefilm_ws_get_promo_code: ".implode("\n", $response->get_error_messages()));
+        throw new LoveFilmPromoCodeNotFoundException("WP Error retrieving promo code: ".var_export($response, true));
+    }
+
+    if(wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
+        _log("lovefilm_ws_get_promo_code: ".wp_remote_retrieve_response_code($response)." ".wp_remote_retrieve_response_message($response)."\n".wp_remote_retrieve_body($response));
+        throw new LoveFilmPromoCodeNotFoundException("HTTP Error retrieving promo code: ".var_export($response, true));
+    }
+
+    parse_str($response['body'], $results);
+    if(!array_key_exists('promoCode', $results))
+        throw new LoveFilmPromoCodeNotFoundException("No promoCode passed in response");
+
+    // Success!
+    update_option('lovefilm-promo-code', $results['promoCode']);
 }
+
+// Runs the cron job for promocode
+add_action ('lovefilm_cron', 'lovefilm_ws_get_promo_code');
 
 if(!function_exists('http_build_query')) {
     function http_build_query($data,$prefix=null,$sep='',$key='') {

@@ -59,9 +59,9 @@ class Lovefilm_Widget extends WP_Widget
         
         //_log("TITLES:\n".var_export($titles, true));
 
-        
-        $mrktMsg = lovefilm_ws_get_marketing_msg();
-        $promoCode = lovefilm_ws_get_promo_code();
+        // This calls the marketing message from the cache.
+        $mrktMsg = lovefilm_ws_get_cached_marketing_msg();
+        $promoCode = lovefilm_ws_get_cached_promo_code();
         
         if($embed_status == Lovefilm_Widget::SERVICE_SUCCESS)
         {
