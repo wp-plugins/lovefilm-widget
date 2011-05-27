@@ -3,7 +3,7 @@
  * Plugin Name: LOVEFiLM Widget
  * Plugin URI: http://www.lovefilm.com/partnership/widgets
  * Description: This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog. Monetise your blog by promoting the latest and most popular movies or games with LOVEFiLM's affiliate program.
- * Version: 1.0.16
+ * Version: 1.0.17
  * Author: LOVEFiLM-widgets
  * Author URI: http://profiles.wordpress.org/users/LOVEFiLM-widgets/
  * License: GPL2
@@ -28,7 +28,7 @@
  * The following constant is set by the build process
  */
 if(!defined('LOVEFILM_WIDGET_VERSION')) {
-	define('LOVEFILM_WIDGET_VERSION', "1.0.16");
+	define('LOVEFILM_WIDGET_VERSION', "1.0.17");
 }
 /*
  * Checkes the version of the Wordpress. if the version is less then 3.0 then it shows the the error message.
@@ -67,11 +67,6 @@ if ( is_admin() ) {
 }
 
 /**
- * Register new XML-RPC functions to WordPress.
- */
-add_filter( 'xmlrpc_methods', 'lovefilm_xmlrpc_methods' );
-
-/**
  * Widget hook registration.
  */
 add_action( 'widgets_init', 'lovefilm_widgets_init' );
@@ -105,14 +100,23 @@ if(!class_exists('InvalidArgumentException')){
  * the interval is 86400 = 60S*60M*24H
  */
 // Add cron interval of 60 seconds
-    function lovefilm_cronjob($lf_schedule) {
-        error_log('The cron interval in lovefilm');
-        $lf_schedule['cron_action_time'] = array(
-            'interval' => 86400,
-            'display' => 'Once a Minute'
-        );
+if(defined('WP_LOVEFILM_DEBUG') && WP_LOVEFILM_DEBUG == true)
+{
+	function lovefilm_cronjob($lf_schedule) {
+		error_log('The cron interval in lovefilm has been set');
+	    $lf_schedule['cron_action_time'] = array(
+	    	'interval' => 60,
+	        'display' => 'Once a minute'
+		);
+		return $lf_schedule;
+	}
+	add_filter('cron_schedules', 'lovefilm_cronjob');
+}
 
-          return $lf_schedule;
-    }
-
-    add_filter('cron_schedules', 'lovefilm_cronjob');
+// Runs the cron job
+add_action ('lovefilm_cron', 'lovefilm_ws_get_marketing_msg');
+// Runs the cron job action.
+add_action ('lovefilm_cron', 'lovefilm_admin_clearDbCache');
+// Runs the cron job for promocode
+add_action ('lovefilm_cron', 'lovefilm_ws_get_promo_code');    
+    
