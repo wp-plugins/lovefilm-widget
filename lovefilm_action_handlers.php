@@ -15,7 +15,6 @@ require_once( 'lovefilm_widget.php' );
 if ( !defined( 'WP_PLUGIN_URL' ))
 	define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
 
-
 define('LOVEFILM_WS_RESOURCES_URL', LOVEFILM_WS_URL.'widget');
 
 /**
@@ -59,32 +58,27 @@ function lovefilm_activate() {
 			deactivate_plugins(dirname(__FILE__).DIRECTORY_SEPARATOR."lovefilm.php");
 		wp_die($message);
     }
-
     
-    //Activates the Scheduler for lovefilm cron job 
-    wp_schedule_event(mktime(date('H'),0,0,date('m'),date('d'),date('Y')), 'cron_action_time', 'lovefilm_cron');
-    
-    
+    //Activates the Scheduler for lovefilm cron job
+    if(defined('WP_LOVEFILM_DEBUG') && WP_LOVEFILM_DEBUG == true)
+    	wp_schedule_event(mktime(), 'cron_action_time', 'lovefilm_cron');
+    else
+    	wp_schedule_event(mktime(), 'daily', 'lovefilm_cron');
+    	
     try {
     	if(!get_option('lovefilm_domain'))
-    	{
 	        add_option('lovefilm_domain', '');
-    	}
-    
-		// Generate UID and store UID in WordPress database
-    	$uid = lovefilm_ws_register_uid();
-		// Collect usage data about blog
-		$usageData = lovefilm_admin_collect_useage_data();
-		// Send usage data to web service using UID
-		lovefilm_ws_usage_data($uid, $usageData);
+		
+    	$uid = lovefilm_ws_register_uid(); // Generate UID and store UID in WordPress database
+	$usageData = lovefilm_admin_collect_useage_data(); // Collect usage data about blog
+	lovefilm_ws_usage_data($uid, $usageData); // Send usage data to web service using UID
                 
-                //This functions get the marketing message, fetch the titles and get the promocode during the activation of the widget.
-                _log("---starting to pre-populate cache");
-                lovefilm_ws_get_marketing_msg();
-                lovefilm_admin_clearDbCache();
-                lovefilm_ws_get_promo_code();
-                _log("---done pre-populate cache");
-                
+		//This functions get the marketing message, fetch the titles and get the promocode during the activation of the widget.
+        _log("---starting to pre-populate cache");
+        lovefilm_ws_get_marketing_msg();
+	lovefilm_admin_clearDbCache();
+        lovefilm_ws_get_promo_code();
+        _log("---done pre-populate cache");
     } catch(Exception $e) {
     	_log($e);
     }
@@ -94,27 +88,20 @@ function lovefilm_install_tables()
 {
     global $wpdb;
     $sqldir = dirname(__FILE__) . '/sql/tables.sql';
-
     $installSql = file_get_contents($sqldir);
-
     $queries = explode('|', $installSql);
-
     foreach($queries as $q)
     {
         $wpdb->query($q);
     }
-
 }
 
 function lovefilm_uninstall_tables()
 {
     global $wpdb;
     $sqldir = dirname(__FILE__) . '/sql/uninstall.sql';
-
     $installSql = file_get_contents($sqldir);
-
     $queries = explode('|', $installSql);
-
     foreach($queries as $q)
     {
         $wpdb->query($q);
@@ -126,44 +113,16 @@ function lovefilm_uninstall_tables()
  */
 function lovefilm_init_options()
 {
-	//if(get_option('lovefilm_context')===FALSE)
-		update_option('lovefilm_context', LOVEFILM_DEFAULT_CONTEXT);
-		
-	//if(get_option('lovefilm-marketing-message')===FALSE)
-		update_option('lovefilm-marketing-message', NULL);
-
-	//if(get_option('lovefilm-promo-code')===FALSE)
-		update_option('lovefilm-promo-code', NULL);
-		
-	//if(($res = get_option('lovefilm-settings'))===FALSE)
-	//{
-		update_option('lovefilm-settings', array(
-											"context"             => LOVEFILM_DEFAULT_CONTEXT, 
-											"type"                => LOVEFILM_DEFAULT_MODE, 
-											"theme"               => LOVEFILM_DEFAULT_THEME, 
-											"lovefilm_width_type" => LOVEFILM_DEFAULT_WIDTH_TYPE, 
-											"lovefilm_aff"        => LOVEFILM_DEFAULT_AFF));
-		
-	/*} else {
-		$defaultSettings = array();
-		
-		if(!array_key_exists("context", $res))
-			$defaultSettings["context"] = LOVEFILM_DEFAULT_CONTEXT;
-			
-		if(!array_key_exists("type", $res))
-			$defaultSettings["type"] = LOVEFILM_DEFAULT_MODE;
-			
-		if(!array_key_exists("theme", $res))
-			$defaultSettings["theme"] = LOVEFILM_DEFAULT_THEME;
-			
-		if(!array_key_exists("lovefilm_width_type", $res))
-			$defaultSettings["lovefilm_width_type"] = LOVEFILM_DEFAULT_WIDTH_TYPE;
-			
-		if(!array_key_exists("lovefilm_aff", $res))
-			$defaultSettings["lovefilm_aff"] = LOVEFILM_DEFAULT_AFF;
-		
-		update_option('lovefilm-settings', $defaultSettings);
-	}*/
+	update_option('lovefilm_context', LOVEFILM_DEFAULT_CONTEXT);
+	update_option('lovefilm-marketing-message', NULL);
+	update_option('lovefilm-promo-code', NULL);
+	update_option('lovefilm-settings', array(
+										"context"             => LOVEFILM_DEFAULT_CONTEXT, 
+										"type"                => LOVEFILM_DEFAULT_MODE, 
+										"theme"               => LOVEFILM_DEFAULT_THEME, 
+										"lovefilm_width_type" => LOVEFILM_DEFAULT_WIDTH_TYPE, 
+										"lovefilm_aff"        => LOVEFILM_DEFAULT_AFF)
+									   );
 }
 
 /**
@@ -218,6 +177,7 @@ function lovefilm_uninstall() {
 	lovefilm_clear_wp_options();
 	lovefilm_delete_options();
 	unregister_widget('Lovefilm_Widget');
+        _log('Lovefilm widget deactivated');
 }
 
 /**

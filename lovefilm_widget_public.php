@@ -32,7 +32,7 @@ LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOp
                     <?php foreach($titles as $i => $item): ?>
 
                     <li class="movie<?php echo ($i == count($titles) - 1)? ' last' : '' ?>" id="movie-<?php echo $i?>">
-                    <a href="<?php echo $item->url ?>" <?php echo ($item->nofollow)?"rel=\"nofollow\"":""; ?> target="_blank">
+                    <a href="<?php echo $item->url ?>" <?php echo ($item->nofollow == 1)?"rel=\"nofollow\"":""; ?> target="_blank">
                         <span class="wrap">
                             <img src="<?php echo $item->imageUrl ?>" alt="<?php echo $item->title ?>" />
                             <span class="mask">&nbsp;</span>

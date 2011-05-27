@@ -38,21 +38,26 @@ if(!defined('LOVEFILM_PLUGIN_MIN_PHP_VERSION_ID'))
 /**
  * Webservice name
  */
-$servername = $_SERVER['SERVER_NAME'];
-switch($servername)
+if(defined('WP_LOVEFILM_DEBUG') && WP_LOVEFILM_DEBUG == true)
 {
-    case 'wp.local':
-        $urlst = "http://lovefilm-ws.dev/";
-        break;
-    case 'lovefilm.staging.stickyeyes.com':
-        $urlst = "http://webservice.lovefilm.staging.stickyeyes.com/";
-        break;
-    case 'lovefilm-int.staging.stickyeyes.com':
-        $urlst = "http://webservice.lovefilm-int.staging.stickyeyes.com/";
-        break;
-    default:
-        $urlst = "http://widget.lovefilm.com/";
-        break;
+    $urlst = "http://webservice.lovefilm-stable.staging.stickyeyes.com/";
+} else {
+    $servername = $_SERVER['SERVER_NAME'];
+    switch($servername)
+    {
+        case 'wp.local':
+            $urlst = "http://lovefilm-ws.dev/";
+            break;
+        case 'lovefilm.staging.stickyeyes.com':
+            $urlst = "http://webservice.lovefilm.staging.stickyeyes.com/";
+            break;
+        case 'lovefilm-int.staging.stickyeyes.com':
+            $urlst = "http://webservice.lovefilm-int.staging.stickyeyes.com/";
+            break;
+        default:
+            $urlst = "http://widget.lovefilm.com/";
+            break;
+    }
 }
 
 if (!defined('LOVEFILM_WS_URL'))

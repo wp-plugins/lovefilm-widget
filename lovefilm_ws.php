@@ -243,7 +243,11 @@ function lovefilm_ws_parse_titles($xmlString)
             $catOb = new stdClass();
             $catOb->position = $assignment->attributes->getNamedItem('position')->nodeValue;
             $catOb->nofollow = $assignment->attributes->getNamedItem('nofollow')->nodeValue;
-
+			if($catOb->nofollow == 'true' || $catOb->nofollow == '1')
+				$catOb->nofollow = 1;
+			else
+				$catOb->nofollow = 0;
+            
             foreach($assignment->childNodes as $cItem)
             {
 
@@ -297,9 +301,7 @@ function lovefilm_ws_parse_titles($xmlString)
             $items[] = $catOb;
         }
     }
-   
     _log("Done parsing titles: ".count($items));
-    
     return $items;
 }
 
@@ -514,8 +516,6 @@ function lovefilm_ws_insup_assignments($pageId, $titles)
     foreach($titles as $title)
     {
     	if(property_exists($title, 'hash') && property_exists($title, 'position')) {
-    		
-    		$nofollow = ($title->nofollow=='true')?1:0;
 
     		$selectSql = "SELECT page_id FROM LFW_PageAssignment WHERE page_id = UNHEX('<id>') AND catalogitem_id = UNHEX('<catId>');";
     		
@@ -546,15 +546,14 @@ function lovefilm_ws_insup_assignments($pageId, $titles)
 		    if($result === FALSE) {
 		    	return false;
 		    }
-		    
-			if($result == 0) {
-				$result = $wpdb->query($wpdb->prepare($insertSql, $title->position, $title->nofollow));
-			} else {
-		    	$result = $wpdb->query($wpdb->prepare($updateSql, $title->position, $title->nofollow));
-		    	
-		    	if($result === FALSE) {
-		    		return false;
-		    	}
+                    if($result == 0) {
+                            $result = $wpdb->query($wpdb->prepare($insertSql, $title->position, $title->nofollow));
+                    } else {
+                    $result = $wpdb->query($wpdb->prepare($updateSql, $title->position, $title->nofollow));
+
+                    if($result === FALSE) {
+                            return false;
+                    }
 		    }
     	} else {
     		_log("Missing properties: hash, position");
@@ -704,12 +703,6 @@ function lovefilm_ws_get_marketing_msg()
     	update_option('lovefilm-marketing-message', $marketingMsg);
 }
 
-// Runs the cron job
-
-add_action ('lovefilm_cron', 'lovefilm_ws_get_marketing_msg');
-
-
-
 function lovefilm_ws_get_cached_promo_code()
 {
      return get_option('lovefilm-promo-code');
@@ -737,9 +730,6 @@ function lovefilm_ws_get_promo_code()
     // Success!
     update_option('lovefilm-promo-code', $results['promoCode']);
 }
-
-// Runs the cron job for promocode
-add_action ('lovefilm_cron', 'lovefilm_ws_get_promo_code');
 
 if(!function_exists('http_build_query')) {
     function http_build_query($data,$prefix=null,$sep='',$key='') {

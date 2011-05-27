@@ -345,16 +345,19 @@ function lovefilm_validate_settings($input)
 }
 
 /*
- * Set up a cron job to run the every 24 hours to clear the DB cache.
+ * Clears the currently cached Titles from the local
+ * database. When a page is requested with the Widget
+ * on it, and it has no titles in its local cache, this
+ * will trigger the Widget to go fetch new titles. 
  */
 function lovefilm_admin_clearDbCache()
 {
-	// Clear marketing msg
-        error_log('Cron job in clearDbCache function.');
 	try {
     	$titles = lovefilm_ws_get_embedded_titles_ws();
-	lovefilim_clearall_pagetiltes();
-    	lovefilm_ws_set_embedded_titles_db($titles);
+		if(count($titles)>0) {
+    		lovefilim_clearall_pagetiltes();
+    		lovefilm_ws_set_embedded_titles_db($titles);
+		}
 	} 
 	catch(Exception $e)
 	{
@@ -363,9 +366,7 @@ function lovefilm_admin_clearDbCache()
 	}
 }
     
-// Runs the cron job action.
-add_action ('lovefilm_cron', 'lovefilm_admin_clearDbCache');
-    
+   
 /**
  * Flush all the entries form the page table cache
  * @global type $wpdb
