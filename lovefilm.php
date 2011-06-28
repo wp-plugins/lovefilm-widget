@@ -3,7 +3,7 @@
  * Plugin Name: LOVEFiLM Widget
  * Plugin URI: http://www.lovefilm.com/partnership/widgets
  * Description: This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog. Monetise your blog by promoting the latest and most popular movies or games with LOVEFiLM's affiliate program.
- * Version: 1.0.17
+ * Version: 2.0
  * Author: LOVEFiLM-widgets
  * Author URI: http://profiles.wordpress.org/users/LOVEFiLM-widgets/
  * License: GPL2
@@ -28,7 +28,7 @@
  * The following constant is set by the build process
  */
 if(!defined('LOVEFILM_WIDGET_VERSION')) {
-	define('LOVEFILM_WIDGET_VERSION', "1.0.17");
+	define('LOVEFILM_WIDGET_VERSION', "2.0");
 }
 /*
  * Checkes the version of the Wordpress. if the version is less then 3.0 then it shows the the error message.
@@ -37,7 +37,7 @@ global $wp_version;
 
 if ( !version_compare($wp_version,"2.8",">=") ) {
     
-	$errormsg = '<p>You need at least version 3.0 of WordPress to use this plugin.<br>' ;
+    $errormsg = '<p>You need at least version 3.0 of WordPress to use this plugin.<br>' ;
     $errormsg .= '<a href = '. get_option(siteurl).'/wp-admin/update-core.php target="_parent">Click here to update latest version.</a></p>';
     die($errormsg);
 }
@@ -118,5 +118,4 @@ add_action ('lovefilm_cron', 'lovefilm_ws_get_marketing_msg');
 // Runs the cron job action.
 add_action ('lovefilm_cron', 'lovefilm_admin_clearDbCache');
 // Runs the cron job for promocode
-add_action ('lovefilm_cron', 'lovefilm_ws_get_promo_code');    
-    
+add_action ('lovefilm_cron', 'lovefilm_ws_get_promo_code'); 

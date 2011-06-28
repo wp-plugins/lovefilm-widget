@@ -8,6 +8,7 @@
  * Contains all the functions called as part of the
  * plug-in WordPress admin system.
  */
+require_once("lovefilm_strings_en.php");
 /**
  * Constant definitions.
  */
@@ -64,9 +65,15 @@ function lovefilm_admin_collect_useage_data()
 }
 
 //required as part of the lovefilm_admin_register_settings.
-function lovefilm_section_main()
+function lovefilm_section_apperance()
 {
+    //echo "<div align=center></div>";
+}
 
+function lovefilm_section_earn()
+{
+    echo '<p style="margin-left: 10px;">Please select the payment scheme.</p>';
+   // echo "hi";
 }
 
 function lovefilm_width_type_input()
@@ -88,7 +95,8 @@ EOT;
 }
 
 function lovefilm_input_width()
-{
+{   
+    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_WIDTH_TYPE.'</span></span>';
     $options = get_option('lovefilm-settings');
     $empty = ($options['lovefilm_width_type'] == "" || is_null($options['lovefilm_width_type']));
 
@@ -145,6 +153,8 @@ EOT;
 
 function lovefilm_input_widget_type()
 {
+    
+    
     $options = get_option('lovefilm-settings');
 
     $selected = $options['type'];
@@ -163,7 +173,10 @@ function lovefilm_input_widget_type()
 
 function lovefilm_input_widget_theme()
 {
-
+    
+    //toop tip
+    echo '<span class="tooltip">?<span>Choose whether the widget is to use the light or dark colour theme.</span></span>';
+    
     $options = get_option('lovefilm-settings');
     if(is_array($options) && array_key_exists('theme', $options))
     {
@@ -187,6 +200,9 @@ function lovefilm_input_widget_theme()
 
 function lovefilm_input_widget_context()
 {
+    //tool tip
+    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_WIDGET_CONTEXT.'</span></span>';
+    
     $options = get_option('lovefilm-settings');
     $selected = $options['context'];
 
@@ -198,18 +214,144 @@ function lovefilm_input_widget_context()
     echo $select;
 }
 
-function lovefilm_input_widget_aff()
+function lovefilm_input_widget_none()
 {
+     //tool tip
+    echo '<span class="tooltip">?<span>Select None.</span></span>';
+    
+    $earn_type = get_option('lovefilm_earn_type');
+    
+    if($earn_type == 'none')
+    {
+       
+        echo '<input type="radio" name="lovefilm-settings[earn_type]" class="earntype" value="none" checked="checked" />';
+    }
+    else
+    {
+        
+        echo "<input type='radio' name='lovefilm-settings[earn_type]' class='earntype' value='none' />";
+    }
+    
+    
+    
+}
+function lovefilm_input_widget_aff()
+{ 
+   
+    
+    $js = <<<EOT
+
+   <script language="JavaScript">
+//<![CDATA[
+    jQuery(document).ready(function(){
+    if(jQuery('.earntype:checked').val() == null)
+	{
+		jQuery('.earntype').filter('[value="none"]').attr('checked', true);
+
+	}
+            function validate(clicked)
+            {
+                if(clicked == 'aff')
+                {
+                    jQuery('#share_love').attr("disabled", "disabled");
+                    jQuery('#share_love').css("background-color", "#E4E4E4");
+                    //jQuery('#share_love').val('');
+                    jQuery('#lovefilm_settings_aff').attr("disabled", "");
+                    jQuery('#lovefilm_settings_aff').css("background-color", "#FFFFFF");
+                    
+                    
+                }
+                if(clicked == 'share_love')
+                {
+                    jQuery('#lovefilm_settings_aff').attr("disabled", "disabled");
+                    jQuery('#lovefilm_settings_aff').css("background-color", "#E4E4E4");
+                    //jQuery('#lovefilm_settings_aff').val('');
+                    jQuery('#share_love').css("background-color", "#FFFFFF");
+                    jQuery('#share_love').attr("disabled", "");
+                }
+                 if(clicked == 'none')
+                {
+                    jQuery('#lovefilm_settings_aff').attr("disabled", "disabled");
+                    jQuery('#lovefilm_settings_aff').css("background-color", "#E4E4E4");
+                   // jQuery('#lovefilm_settings_aff').val('');
+                    jQuery('#share_love').attr("disabled", "disabled");
+                    jQuery('#share_love').css("background-color", "#E4E4E4");
+                   // jQuery('#share_love').val('');
+                }
+            }
+            
+            console.log(jQuery('.earntype:checked').val());
+                validate(jQuery('.earntype:checked').val())
+                jQuery('.earntype').click(function(e){
+                validate(jQuery(this).val());
+            });
+   
+        });
+//]]>
+
+</script>
+EOT;
+    echo $js;
+    //tool tip
+    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_AFFILIATE_CODE.'</span></span>';
+    
     $options = get_option('lovefilm-settings');
+    $input = null;
+    $earn_type = get_option('lovefilm_earn_type');
+    
+    if ($earn_type == 'aff') {
+        $input .= '<input type="radio" name="lovefilm-settings[earn_type]" class="earntype" value="aff" checked="checked"  />';
+    } else {
+        $input .= '<input type="radio" name="lovefilm-settings[earn_type]" class="earntype" value="aff"  />';
+    }
+    $input .= "<input type='text' name='lovefilm-settings[lovefilm_aff]'
+                value='%s' id='lovefilm_settings_aff' />";
 
-    $input = "<input type='text' name='lovefilm-settings[lovefilm_aff]'
-                value='%s' id='lovefilm_settings_aff' /> <span class='optional'>(optional)</span>";
+    echo (isset($options['lovefilm_aff'])) ? sprintf($input, get_option('lovefilm_aff_widget')) : sprintf($input, '');
+}
 
-    echo (isset($options['lovefilm_aff'])) ? sprintf($input, $options['lovefilm_aff']) : sprintf($input, '');
+function lovefilm_input_widget_share_love()
+{   
+    //tool tip
+    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_SHARE_LOVE.'</span></span>';
+    
+    $options = get_option('lovefilm_share_love');
+    $input = null;
+    $earn_type = get_option('lovefilm_earn_type');
+    
+    if($earn_type == 'share_love')
+    {
+        $input .= '<input type="radio" name="lovefilm-settings[earn_type]" class="earntype" value="share_love" checked="checked" />';
+    }
+    else
+    {
+        $input .= '<input type="radio" name="lovefilm-settings[earn_type]" class="earntype" value="share_love" />';
+    }
+    
+    $input .= "<input type='text' name='lovefilm-settings[lovefilm_share_love]'
+                value='%s' id='share_love' />";
+    
+    echo ($earn_type == 'share_love') ? sprintf($input, $options) : sprintf($input, '');
+}
+
+function lovefilm_input_contextual_links()
+{
+    //tool tip
+    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_CONTEXTUAL_DISPLAY_ARTICLE_LINK.'</span></span>';
+    
+    $options = get_option('lovefilm_contextual_display_article_link');
+    ?>
+    Yes<input name="lovefilm-settings[lovefilm_contextual_display_article_link]" type="radio" value="1" <?php checked( '1', get_option( 'lovefilm_contextual_display_article_link' ) ); ?> />
+    No<input name="lovefilm-settings[lovefilm_contextual_display_article_link]" type="radio" value="0" <?php checked( '0', get_option( 'lovefilm_contextual_display_article_link' ) ); ?> />
+    
+    
+  <?php 
+  
 }
 
 function lovefilm_validate_settings($input)
 {
+    //die(var_dump($input));
 	/**
 	 * Array of valid Widget Contexts
 	 */
@@ -322,7 +464,9 @@ function lovefilm_validate_settings($input)
 	 * We dont validate the affliate id, we simply set it
 	 * to what ever value the WP-Admin entered.
 	 */
+ 
     $validInput['lovefilm_aff'] = $input['lovefilm_aff'];
+    update_option('lovefilm_aff_widget', $input['lovefilm_aff']);
 
     // Check if all validation has passed
     // If Context has changed
@@ -340,7 +484,24 @@ function lovefilm_validate_settings($input)
         	update_option('lovefilm_context', $validInput['context']);
         }
     }
-
+    
+   //Adds the contextual widget Display links.
+    if($input['lovefilm_contextual_display_article_link'] == "" || $input['lovefilm_contextual_display_article_link'] == null)
+       {
+           update_option('lovefilm_contextual_display_article_link', 1);
+       }
+     else {
+           update_option('lovefilm_contextual_display_article_link', $input['lovefilm_contextual_display_article_link']);
+          }
+          
+               
+         //share love code overwirtting the promo code.
+          update_option('lovefilm_earn_type' , $input['earn_type']);
+          if(isset($input['lovefilm_share_love']))
+          {
+              update_option('lovefilm_share_love' , $input['lovefilm_share_love']);
+          }
+              
     return $validInput;
 }
 

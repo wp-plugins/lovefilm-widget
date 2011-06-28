@@ -11,6 +11,9 @@ require_once( 'lovefilm_ws_constants.php' );
 require_once( 'lovefilm_admin.php' );
 require_once( 'lovefilm_ws.php' );
 require_once( 'lovefilm_widget.php' );
+if ( version_compare($wp_version,"2.9",">=") ) {
+require_once( 'lovefilm_contextual_widget.php');
+}
 
 if ( !defined( 'WP_PLUGIN_URL' ))
 	define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
@@ -113,7 +116,11 @@ function lovefilm_uninstall_tables()
  */
 function lovefilm_init_options()
 {
-	update_option('lovefilm_context', LOVEFILM_DEFAULT_CONTEXT);
+	update_option('lovefilm_share_love', NULL);
+        update_option('lovefilm_aff_widget', NULL);
+        update_option('lovefilm_earn_type', 'none');
+        update_option('lovefilm_contextual_display_article_link', 0);
+        update_option('lovefilm_context', LOVEFILM_DEFAULT_CONTEXT);
 	update_option('lovefilm-marketing-message', NULL);
 	update_option('lovefilm-promo-code', NULL);
 	update_option('lovefilm-settings', array(
@@ -157,6 +164,11 @@ function lovefilm_delete_options()
     delete_option('lovefilm-marketing-message');
     delete_option('lovefilm-promo-code');
     delete_option('lovefilm_context');
+    delete_option('lovefilm_contextual_display_article_link');
+    delete_option('lovefilm_share_love');
+    delete_option('lovefilm_aff_widget');
+    delete_option('lovefilm_earn_type');
+    
 }
 /**
  * Informs the LOVEFiLM Web Service that the plug-in for this
@@ -201,14 +213,23 @@ function lovefilm_admin_menu() {
  * Called via the action hook 'admin_init'.
  */
 function lovefilm_admin_register_settings() {
-	register_setting(    'lovefilm-settings',          'lovefilm-settings',     'lovefilm_validate_settings');
-	add_settings_section('lovefilm_main',              'Main Settings',         'lovefilm_section_main',         'lovefilm-settings-main');
-	add_settings_field(  'lovefilm_width',             'Width',                 'lovefilm_input_width',          'lovefilm-settings-main', 'lovefilm_main');
-	add_settings_field(  'lovefilm_width_type',        'Widget Layout Type',    'lovefilm_width_type_input',     'lovefilm-settings-main', 'lovefilm_main');
-	add_settings_field(  'lovefilm_theme',             'Widget Theme',          'lovefilm_input_widget_theme',   'lovefilm-settings-main', 'lovefilm_main');
-	add_settings_field(  'lovefilm_context',           'Widget Context',        'lovefilm_input_widget_context', 'lovefilm-settings-main', 'lovefilm_main');
-	add_settings_field(  'lovefilm_aff',               'Widget Affiliate Code', 'lovefilm_input_widget_aff',     'lovefilm-settings-main', 'lovefilm_main');
-    //add_settings_field('lovefilm_type', 'Widget Type', 'lovefilm_input_widget_type', 'lovefilm-settings-main', 'lovefilm_main');
+    global $wp_version;
+    register_setting('lovefilm-settings', 'lovefilm-settings', 'lovefilm_validate_settings');
+    add_settings_section('lovefilm_apperance', 'Appearance', 'lovefilm_section_apperance', 'lovefilm-settings-main');
+    add_settings_section('lovefilm_earn', 'Earn Money (optional)', 'lovefilm_section_earn', 'lovefilm-settings-earn-type');
+    //Aperance section
+    add_settings_field('lovefilm_context', 'Content', 'lovefilm_input_widget_context', 'lovefilm-settings-main', 'lovefilm_apperance');
+    add_settings_field('lovefilm_theme', 'Colour Theme', 'lovefilm_input_widget_theme', 'lovefilm-settings-main', 'lovefilm_apperance');
+    add_settings_field('lovefilm_width', 'Width', 'lovefilm_input_width', 'lovefilm-settings-main', 'lovefilm_apperance');
+    //add_settings_field(  'lovefilm_width_type',        'Widget Layout Type',    'lovefilm_width_type_input',     'lovefilm-settings-main', 'lovefilm_main');
+    if ( version_compare($wp_version,"2.9",">=") ) {
+    add_settings_field('lovefilm_cw_display_link', 'Display article links?', 'lovefilm_input_contextual_links', 'lovefilm-settings-main', 'lovefilm_apperance');
+    }
+    // Earn section 
+    add_settings_field('lovefilm_none', 'No Thanks', 'lovefilm_input_widget_none', 'lovefilm-settings-earn-type', 'lovefilm_earn');
+    add_settings_field('lovefilm_aff', 'Affiliate Window', 'lovefilm_input_widget_aff', 'lovefilm-settings-earn-type', 'lovefilm_earn');
+    add_settings_field('lovefilm_share_love', 'Share the LOVE', 'lovefilm_input_widget_share_love', 'lovefilm-settings-earn-type', 'lovefilm_earn');
+        
 }
 
 /**
@@ -224,20 +245,27 @@ function lovefilm_widgets_init() {
  *  
 */
 function lovefilm_widget_header() {
-	echo '<link rel="stylesheet" type="text/css" href="' . LOVEFILM_WS_RESOURCES_URL . '/css/widgets.css" />'."\r\n";
+    echo '<link rel="stylesheet" type="text/css" href="' . LOVEFILM_WS_RESOURCES_URL . '/css/widgets-1.1.css" />'."\r\n";
 	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/jquery-1.4.4.min.js" type="text/javascript"></script>'."\r\n";
 	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/jquery-ui-1.8.7.custom.min.js" type="text/javascript"></script>'."\r\n";
-	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/json2.js" type="text/javascript"></script>'."\r\n";
+       // echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/jquery.hoverbox.min" type="text/javascript"></script>'."\r\n";
     
-    echo '	<!--[if lt IE 7]>
+        echo '	<!--[if lt IE 7]>
 	<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/belated-0.0.8a.min.js" type="text/javascript"></script>
 	<script>
-	jQuery(document).ready(function() {
+	LFWidget$(document).ready(function() {
+        DD_belatedPNG.fix("#lf-widget a .wrap");
+        DD_belatedPNG.fix("#lf-widget a .wrap .mask");
+        DD_belatedPNG.fix("#lf-widget .ratings");
+        DD_belatedPNG.fix("#lf-widget .rental");
+        DD_belatedPNG.fix("#lf-widget .featured-title-review");
     });
 	</script>
 	<![endif]-->'."\r\n";
 
 	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/widgets.js" type="text/javascript"></script>'."\r\n";
+	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/contextual.js" type="text/javascript"></script>'."\r\n";
+	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/json2.js" type="text/javascript"></script>'."\r\n";
 	echo '<!--[if lt IE 9]><script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/html5.js"></script><![endif]-->'."\r\n";
 }	
 /**
@@ -247,3 +275,19 @@ function lovefilm_clear_setting()
 {
 	echo NULL;
 }
+
+add_action('admin_head', 'lovefilm_tool_tip_css'); 
+
+/**
+ * All the Ajax and the jquery functionality goes here
+ */
+function lovefilm_tool_tip_css() {
+    
+?>
+<style type="text/css">
+.tooltip {text-decoration:none; padding:3px;border:1px solid #2683AE; margin-right: 5px; font-weight: bold; color:#2683AE;}
+.tooltip:hover {background:#ffffff; text-decoration:none;} /*BG color is a must for IE6*/
+.tooltip span {display:none; padding:2px 3px; margin-left:8px; width:400px;}
+.tooltip:hover span{display:inline; position:absolute; border:1px solid #cccccc; background:#ffffff; color:#6c6c6c;line-height: 1.2; font-size: 10pt; font-weight: normal;}
+</style>
+<?php } ?>

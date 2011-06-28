@@ -61,7 +61,15 @@ class Lovefilm_Widget extends WP_Widget
 
         // This calls the marketing message from the cache.
         $mrktMsg = lovefilm_ws_get_cached_marketing_msg();
+        $earn_type = get_option('lovefilm_earn_type');
+         if($earn_type == 'none' || $earn_type == 'aff')
+        {
         $promoCode = lovefilm_ws_get_cached_promo_code();
+        }
+        if($earn_type == 'share_love')
+        {
+            $promoCode = get_option('lovefilm_share_love');
+        }
         
         if($embed_status == Lovefilm_Widget::SERVICE_SUCCESS)
         {
@@ -70,7 +78,14 @@ class Lovefilm_Widget extends WP_Widget
         		$widgetOpts = array();
         		
             $widgetId   = get_option('lovefilm-uid');
-        	require_once('lovefilm_widget_public.php');
+            
+            global $wpdb, $post;
+             if(!empty($post->ID))
+            {
+                $query = "SELECT * FROM LFW_Contextual WHERE contextual_post_id = $post->ID";
+                $exist = $wpdb->get_row($query);  
+            }
+            require_once('lovefilm_widget_public.php');
         }
     }
 
