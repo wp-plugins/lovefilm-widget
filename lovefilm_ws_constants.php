@@ -40,7 +40,7 @@ if(!defined('LOVEFILM_PLUGIN_MIN_PHP_VERSION_ID'))
  */
 if(defined('WP_LOVEFILM_DEBUG') && WP_LOVEFILM_DEBUG == true)
 {
-    $urlst = "http://webservice.lovefilm-stable.staging.stickyeyes.com/";
+    $urlst = "http://webservice.lovefilm.staging.stickyeyes.com/";
 } else {
     $servername = $_SERVER['SERVER_NAME'];
     switch($servername)

@@ -10,13 +10,60 @@ LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOp
 <div id="lf-widget" class="widget" <?php if(isset($widgetOpts['lovefilm_width']) && $widgetOpts != 'fluid') echo "style=\"width:{$widgetOpts['lovefilm_width']}px\""; ?>>
     <div id="lf-wrapped" <?php if(isset($widgetOpts['theme']) && !empty($widgetOpts['theme'])) echo " class=\"{$widgetOpts['theme']}\""; ?>>
         <div class="header">
-            <h3><a href="http://www.lovefilm.com" target="_blank" class="logo">LOVEFiLM</a></h3>
-            <p><?php if(!is_null($mrktMsg)): ?><a id="lf-message" href="<?php echo $mrktMsg->href; ?>" target="_blank"><?php echo $mrktMsg->anchor_text; ?></a><?php endif; ?></p>
+            <a href="<?php echo is_null($mrktMsg) ? 'http://www.lovefilm.com' : $mrktMsg->href ?>" target="_blank" rel="nofollow" class="logo-link">
+            <h3>LOVEFiLM</h3>
+            <?php if(!is_null($mrktMsg)): ?><p id="lf-message"><?php echo $mrktMsg->anchor_text; ?></p><?php endif; ?>
+            </a>
         </div>
 
         <div class="content accordion">
-            
-            <div class="heading"><span class="arrow open">Latest Releases</span></div>
+            <?php //print_r($exist);
+                    $display = true;
+                    if(($exist != null || $exist != "") && !is_home())
+                    {
+                        $display = false;
+            ?>
+            <div class="heading"><span class="arrow open">Featured Title</span></div>
+            <div class="frame" id="featured-title">
+                <a class="featured-title-review" href="<?php echo $exist->contextual_title_url ?>" alt="<?php echo $exist->contextual_title ?>" target="_blank">
+                    <div class="wrap">
+                        <span class="image-wrap">
+                            <?php if(isset($exist->contextual_image) && !empty($exist->contextual_image)) : ?>
+                            <img src="<?php echo $exist->contextual_image ?>" />
+                            <?php else: ?>
+                            <img src="<?php echo get_option('siteurl') . '/wp-content/plugins/lovefilm/images/default-image.gif'; ?>" />
+                            <?php endif; ?>
+                        </span>
+                        <span class="rental">Rent</span>
+                    </div>
+                    <div class="featured-title-description">
+                        <h4>
+                            <?php echo $exist->contextual_title ?>
+                            <?php if(!empty($exist->contextual_release_date)) : ?>
+                            <span>(<?php echo $exist->contextual_release_date ?>)</span>
+                            <?php endif; ?>
+                        </h4>
+                        <span class="ratings ratings-stars-<?php echo strtr($exist->contextual_rating, '.', '-') ?>"><?php echo $exist->contextual_rating ?> out of 5 stars</span>
+                        <?php if($exist->contextual_mode == "tv" || $exist->contextual_mode == "film"){?>
+                        <dl class="clearfix">
+                            <dt>Director:</dt>
+                            <dd><strong><?php echo $exist->contextual_director ?></strong></dd>
+                        </dl>
+                        <?php } else { ?>
+                         <dl class="clearfix">
+                            <dt>Developer:</dt>
+                            <dd><strong><?php echo $exist->contextual_director ?></strong></dd>
+                        </dl>
+                        <?php } ?>
+                        <p>
+                            <?php echo $exist->contextual_synopsis ?> 
+                        </p><span class="ellipsis">...</span>
+                        <span class="read-more">Read more</span>
+                    </div>
+                </a>
+            </div>
+            <?php } ?>
+            <div class="heading"><span class="arrow<?php if($display) echo ' open' ?>">Latest Releases</span></div>
             <div class="frame">
                 <iframe id="latest-releases" src="" scrolling="no" frameBorder="0"></iframe>
             </div>
@@ -25,6 +72,7 @@ LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOp
             <div class="frame">
                 <iframe id="most-popular" src="" scrolling="no" frameBorder="0"></iframe>
             </div>
+            <?php if($display == true ): ?>
             <?php if($embed_status == Lovefilm_Widget::SERVICE_SUCCESS) : ?>
             <div class="heading"><span class="arrow">LOVEFiLM Favourites</span></div>
             <div class="frame" id="favourites">
@@ -53,9 +101,10 @@ LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOp
                 </div>
             </div>
             <?php endif; ?>
+            <?php endif; ?>
         </div>
         <div class="footer" id="lf-footer">
-			<a href="http://www.lovefilm.com/widgets" target="_blank">Get this widget for your site &rsaquo;</a>
+			<a href="http://www.lovefilm.com/widgets" target="_blank" rel="nofollow">Get this widget for your site &rsaquo;</a>
 		</div>	
     </div>
 </div>
