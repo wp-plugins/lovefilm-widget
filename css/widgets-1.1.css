@@ -1,0 +1,567 @@
+/*===============================================================================
+WIDGETS STYLE SHEET
+===============================================================================*/
+
+/* = CSS RESET 
+
+-------------------------------------------------------------------------------*/	
+
+#lf-widget #lf-wrapped h1, #lf-widget #lf-wrapped h2, #lf-widget #lf-wrapped h3, #lf-widget #lf-wrapped h4, #lf-widget #lf-wrapped h5, #lf-widget #lf-wrapped p, #lf-widget #lf-wrapped div, #lf-widget #lf-wrapped span,
+#lf-widget #lf-wrapped dl, #lf-widget #lf-wrapped dt, #lf-widget #lf-wrapped dd, #lf-widget #lf-wrapped ol, #lf-widget #lf-wrapped ul, #lf-widget #lf-wrapped li, #lf-widget #lf-wrapped a, #lf-widget #lf-wrapped img  {
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+  font-size:100%;
+  vertical-align:baseline;
+  background:transparent;
+  text-decoration: none;
+  width: auto;
+  height: auto;
+  top: auto;
+  left: auto;
+  color: inherit;
+  background: none;    
+  float: none;
+  text-transform: none;
+  font-style: normal;
+}  
+#lf-widget #lf-wrapped h1, #lf-widget #lf-wrapped h2, #lf-widget #lf-wrapped h3, #lf-widget #lf-wrapped h4, #lf-widget #lf-wrapped h5, #lf-widget #lf-wrapped div.heading {
+	font-weight: bold;
+}                
+#lf-widget #lf-wrapped ul { list-style:none !important; }
+
+/* = WIDGET
+-------------------------------------------------------------------------------*/
+
+#lf-widget #lf-wrapped {
+	font:normal 10px/1.25em Arial,Verdana,sans-serif;
+	text-align: left;
+	color: #000;
+	min-width: 200px;
+	max-width: 350px;
+	margin: 0 0 20px 0;
+}
+
+#lf-widget #lf-wrapped a {
+	color:#026AD2;
+}
+
+#lf-widget #lf-wrapped a:hover, #lf-widget #lf-wrapped a:focus {
+	color:#000;
+}
+
+/* = WIDGET HEADER
+-------------------------------------------------------------------------------*/
+
+#lf-widget #lf-wrapped .header {
+    min-height: 35px;
+	border-left:1px solid #dcdcdc;
+	border-right:1px solid #dcdcdc;
+	border-top:1px solid #dcdcdc;
+	padding: 10px 10px 1px 10px;
+    background-color: #fff;
+	text-align: left;
+}
+
+* html #lf-widget #lf-wrapped .header  { height: 35px; } /* IE6 */
+
+#lf-widget #lf-wrapped.dark .header {
+	background: #1a1a1a url(../img/header-dark.gif) repeat-x;
+	border-left:1px solid #515151;
+	border-right:1px solid #515151;
+	border-top:1px solid #515151;
+}
+
+*:first-child+html #lf-widget #lf-wrapped .header { /* IE7 fix */
+	padding: 10px 10px 4px 10px;
+}
+
+* html #lf-widget #lf-wrapped .header { /* IE6 fix */
+	padding: 10px 10px 4px 10px;
+}
+
+#lf-widget #lf-wrapped .header a.logo-link {
+    display: block;
+    cursor: hand;
+    cursor: pointer;
+}
+
+#lf-widget #lf-wrapped .header h3 {
+	float: left;
+	width: 112px;
+	height: 25px;
+	margin: 0 10px 10px 0;
+	background: transparent url(../img/logo.gif) no-repeat center center;
+	text-indent: -3000px;
+}
+
+#lf-widget #lf-wrapped.dark .header h3 {
+	background: transparent url(../img/logo-dark.gif) no-repeat center center;
+}
+
+#lf-widget #lf-wrapped .header p {
+	color: #ad3b31;
+	font-weight: bold;
+	min-width: 50px;
+	font-size: 1.1em;
+	margin: 0 0 5px 0;
+	overflow: hidden;
+	line-height: 1.1em;
+}
+
+#lf-widget #lf-wrapped .header p {
+	color: #ad3b31;
+	font-weight: bold;
+}
+
+#lf-widget #lf-wrapped.dark .header p {
+	color: #fff;
+}
+
+/* = WIDGET CONTENT
+-------------------------------------------------------------------------------*/
+
+#lf-widget #lf-wrapped .content {
+	border-left:1px solid #dcdcdc;
+	border-right:1px solid #dcdcdc;
+	border-bottom:1px solid #dcdcdc;
+}
+
+#lf-widget #lf-wrapped.dark .content {
+	border-left:1px solid #515151;
+	border-right:1px solid #515151;
+	border-bottom:1px solid #515151;
+}
+
+#lf-widget #lf-wrapped .frame {
+	height: 177px;
+	overflow: hidden;
+}
+
+#lf-widget #lf-wrapped iframe {
+	border: 0;
+	width: 100%;
+	height: 177px;
+	overflow: hidden;
+}
+
+#lf-widget #lf-wrapped .accordion div.heading {
+	background: transparent url(../img/heading-bg.gif) repeat-x left top;
+	color: #333;
+	height: 28px;
+	cursor: pointer;
+	font: bold 12px/27px Arial,Verdana,sans-serif !important;
+	line-height:29px;
+}
+
+#lf-widget #lf-wrapped.dark .accordion div.heading {
+	background: transparent url(../img/heading-bg-dark.gif) repeat-x left top;
+	color: #dcdcdc;
+}
+
+#lf-widget #lf-wrapped .accordion div.ui-state-active {
+	color: #a5251c;
+}
+
+#lf-widget #lf-wrapped.dark .accordion div.ui-state-active {
+	color: #fff;
+}
+
+#lf-widget #lf-wrapped div.heading span.arrow {
+	background: transparent url(../img/arrows.gif) no-repeat 12px -20px;
+	padding: 0 0 0 30px;	
+	display: block;
+}
+
+#lf-widget #lf-wrapped div.heading span.open {
+	background-position: 12px 12px;
+}
+
+/* = WIDGET EMBEDDED CAROUSEL
+-------------------------------------------------------------------------------*/
+
+#lf-widget #lf-wrapped #favourites {
+	background: transparent url(../img/carousel-bg.gif) repeat-x top left;
+	font: normal 0.7em/1.25 Arial,Verdana,sans-serif;
+    position: relative;
+}
+
+#lf-widget #lf-wrapped.dark #favourites {
+	background-image: url(../img/carousel-bg-dark.gif);
+}
+
+#lf-widget #lf-wrapped #favourites a {
+	text-decoration:none;
+}
+
+/* Pack Shots */
+
+#lf-widget #lf-wrapped #favourites #constraint {
+	position: relative;
+	overflow: hidden;
+	height: 152px;
+	list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie {
+	position: absolute;
+	background: transparent url(../img/pack-shadow.png) no-repeat center 95px;
+	width: 74px;
+	text-align: center;
+	border: 0;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a {
+	font-size: 10px;
+	font-weight: bold;
+	color: #ddd;
+	text-decoration: none;
+	display: block;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a:hover {
+	background: transparent;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a .mask {
+	position: absolute;
+	left: 0;
+	top: 0;
+	display: block;	
+	width: 100%;
+	height: 150px;
+	text-indent: -9999px;
+    color: transparent;
+	background: transparent url(../img/1x1.png) no-repeat center -999px;
+    cursor: pointer;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie .wrap {
+	display: block;
+	position: relative;
+	background: none;
+	top: 2px;
+	padding: 10px 0;
+	background: transparent url(../img/halo.png) no-repeat center -999px;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a:hover .wrap {
+    background-position: center 0px;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a img {
+	border: none;
+	width: 60px;
+	margin: 0 auto;
+	display: block;
+	height: 85px;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a .rental {
+	position: absolute;
+	left: 0;
+	top: 60px;
+	display: none;
+	width: 74px;
+	height: 34px;
+	background: transparent url(../img/rent-button.png) center no-repeat;
+	text-indent: -9999px;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie .text {
+    color: #ddd;
+	display: block;
+	padding-top: 4px;
+	font-weight: bold;
+	text-align: center;
+	word-wrap: break-word;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a:hover .text {
+	color: #fff;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.movie a .year {
+	color: #B3B3B3;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.raise {
+	background: transparent url(../img/halo.png) no-repeat center 2px;
+	color: #FFF;
+}
+
+#lf-widget #lf-wrapped #favourites #constraint li.raise span.rental {
+	display: block;
+}
+
+/* Nav Scroller */
+
+#lf-widget #lf-wrapped #favourites div#scroller {
+	position: relative;
+	height: 20px;
+}
+
+#lf-widget #lf-wrapped #favourites div#scroller-indent {
+	position: absolute;
+	top: 0px;
+}
+#lf-widget #lf-wrapped span.nav-icon {
+	display: block;
+	cursor: pointer;
+	height: 17px;
+	float: left;
+	background: transparent url(../img/carousel-nav-icons.png) no-repeat -43px -31px;
+	margin: 0 2px;
+}
+
+/* IE6 hack */
+
+* html span.nav-icon {
+	background: transparent url(../img/carousel-dot-ie6.gif) no-repeat 3px 4px !important;
+}
+
+/* End of IE6 hack */
+
+#lf-widget #lf-wrapped span.nav-icon:hover {
+	background-position: -43px -91px;
+}
+
+#lf-widget #lf-wrapped div#scroller span.nav-selected {
+	background-position: left -31px;
+}
+
+/* IE6 hack */
+
+* html #lf-widget #lf-wrapped div#scroller span.nav-selected {
+	background: transparent url(../img/carousel-nav-select-ie6.gif) no-repeat !important;
+}
+
+/* End of IE6 hack */
+
+#lf-widget #lf-wrapped span.nav-scroller {
+	display: block;
+	cursor: pointer;
+	height: 17px;
+	float: left;
+	background: url(../img/carousel-nav-icons.png) no-repeat;
+	margin: 0 2px;
+}
+
+#lf-widget #lf-wrapped span.scroll-left {
+	background-position: left top;
+}
+
+#lf-widget #lf-wrapped span.scroll-left:hover {
+	background-position: left -60px;
+}
+
+#lf-widget #lf-wrapped span.scroll-right {
+	background-position: right top;
+}
+
+#lf-widget #lf-wrapped span.scroll-right:hover {
+	background-position: right -60px;
+}
+
+/* = WIDGET FOOTER
+-------------------------------------------------------------------------------*/
+
+#lf-widget #lf-wrapped .footer {
+	background: transparent url(../img/footer-bg.png) no-repeat center top;
+	text-align: center;
+	font-size: 1.1em;
+	width: 190px;
+	margin: 0 auto;
+}
+
+/* IE6 fix */
+
+* html #lf-widget #lf-wrapped .footer {
+	background: transparent url(../img/footer-bg.gif) no-repeat center top;
+}
+
+/* End of IE6 fix */
+
+#lf-widget #lf-wrapped.dark .footer {
+	background: transparent url(../img/footer-bg-dark.png) no-repeat center top;
+}
+
+/* IE6 fix */
+
+* html #lf-widget #lf-wrapped.dark .footer {
+	background: transparent url(../img/footer-bg-dark.gif) no-repeat center top;
+}
+
+/* End of IE6 fix */
+
+#lf-widget #lf-wrapped .footer a {
+	padding: 6px 0 9px 0;
+	display: block;
+    color:#026AD2 !important;
+}
+
+#lf-widget #lf-wrapped.dark .footer a {
+	color: #fff !important;
+}
+
+#lf-widget #lf-wrapped .footer a:hover {
+	text-decoration: underline;
+}
+	
+/** CLEARFIX **/
+#lf-widget #lf-wrapped .clearfix:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+	}
+* html #lf-widget #lf-wrapped .clearfix              { zoom: 1; } /* IE6 */
+*:first-child+html #lf-widget #lf-wrapped .clearfix  { zoom: 1; } /* IE7 */
+
+/* CONTEXTUAL WIDGET */
+
+#lf-widget #lf-wrapped #featured-title {
+    height: 175px;
+    width: 100%;
+    background: url(../img/carousel-bg.gif) repeat-x left top;
+    font: normal 10px/14px Arial, Helvetica, sans-serif;
+}
+#lf-widget #lf-wrapped #featured-title * {
+    cursor: hand;
+    cursor: pointer;
+}
+#lf-widget #lf-wrapped.dark #featured-title {
+    background: url(../img/carousel-bg-dark.gif) repeat-x left top;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review {
+    display: block;
+    position: relative;
+    margin: 10px 9px;
+    width: auto;
+    height: 156px;
+    background: url(../img/feature-panel-bg.png) repeat-x center bottom;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -o-border-radius: 6px;
+    overflow: hidden;
+    color: #fff;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .wrap {
+    display: block;
+    width: 82px;
+    height: 115px;
+    position: absolute;
+    left: 11px;
+    top: 11px;
+    padding: 0 0 22px;
+    background: url(../img/pack-shadow-large.png) no-repeat bottom center;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .wrap .image-wrap {
+    display: block;
+    width: 82px;
+    height: 115px;
+    background: #ddd;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .wrap img {
+    width: 82px;
+    height: 115px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .wrap .rental {
+	position: absolute;
+	left: 1px;
+	top: 78px;
+    display: none;
+	width: 80px;
+	height: 35px;
+	background: transparent url(../img/rent-button-large.png) center no-repeat;
+	text-indent: -9999px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .featured-title-description {
+    padding: 11px 5px 0 104px;
+    height: 125px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review h4 {
+    color: #fff;
+    font-weight: bold;
+    font-size: 120%;
+    display: inline-block;
+    word-wrap: normal;
+    width: 100%;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review h4 span {
+    color: #dcdcdc;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings {
+    display: block;
+    width: 60px;
+    height: 12px;
+    line-height: 12px;
+    margin: 4px 0 6px;
+    background: url(../img/stars-small.png) no-repeat 0 0;
+    text-indent: -9999px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-0 {
+    background-position: 0 0px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-0-5 {
+    background-position: 0 -12px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-1 {
+    background-position: 0 -24px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-1-5 {
+    background-position: 0 -36px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-2 {
+    background-position: 0 -48px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-2-5 {
+    background-position: 0 -60px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-3 {
+    background-position: 0 -72px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-3-5 {
+    background-position: 0 -84px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-4 {
+    background-position: 0 -96px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-4-5 {
+    background-position: 0 -108px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ratings.ratings-stars-5 {
+    background-position: 0 -120px;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review dl {
+    color: #dcdcdc;
+    margin: 4px 0;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review dt {
+    display: inline;
+    font-weight: normal;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review dd {
+    display: inline;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review p {
+    clear: both;
+    display: inline;
+    color: #dcdcdc;
+    overflow: hidden;
+    font: normal 10px/14px Arial, Helvetica, sans-serif;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .ellipsis {
+    color: #dcdcdc;
+    white-space: nowrap;
+}
+#lf-widget #lf-wrapped #featured-title .featured-title-review .read-more {
+    display: block;
+    clear: both;
+}

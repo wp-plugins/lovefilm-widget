@@ -134,3 +134,6 @@ if (!defined('LOVEFILM_DEFAULT_WIDTH'))
 
 if (!defined('LOVEFILM_DEFAULT_AFF'))
 	define('LOVEFILM_DEFAULT_AFF', NULL);
+
+if (!defined('LOVEFILM_DEFAULT_PLUGIN_DIR'))
+	define('LOVEFILM_DEFAULT_PLUGIN_DIR', 'lovefilm-widget');

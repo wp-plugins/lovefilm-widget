@@ -193,6 +193,28 @@ function lovefilm_uninstall() {
 }
 
 /**
+ * Informs the LOVEFiLM Web Service that the plug-in for this
+ * UID has been deactivated.
+ * Called via register_deactivation_hook and the register_uninstall_hook.
+ */
+function lovefilm_deactivate() {
+    wp_clear_scheduled_hook('lovefilm_cron');
+	try {
+		$uid = get_option( 'lovefilm-uid' );
+		lovefilm_ws_unregister_uid($uid);
+	}
+	catch(Exception $e) {
+		/* no-op */
+	}
+	// Clear caches
+	//lovefilm_uninstall_tables();
+	lovefilm_clear_wp_options();
+	lovefilm_delete_options();
+	unregister_widget('Lovefilm_Widget');
+        _log('Lovefilm widget deactivated');
+}
+
+/**
  * Generates the admin option under 'Settings' for
  * the LOVEFiLM Widget Configuration Panel.
  * Called via the action hook 'admin_menu'. 
@@ -245,13 +267,13 @@ function lovefilm_widgets_init() {
  *  
 */
 function lovefilm_widget_header() {
-    echo '<link rel="stylesheet" type="text/css" href="' . LOVEFILM_WS_RESOURCES_URL . '/css/widgets-1.1.css" />'."\r\n";
-	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/jquery-1.4.4.min.js" type="text/javascript"></script>'."\r\n";
-	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/jquery-ui-1.8.7.custom.min.js" type="text/javascript"></script>'."\r\n";
+    echo '<link rel="stylesheet" type="text/css" href="' . plugins_url('/css/widgets-1.1.css', __FILE__). '" />'."\r\n";
+	echo '<script src="' . plugins_url('/js/jquery-1.4.4.min.js', __FILE__) . '" type="text/javascript"></script>'."\r\n";
+	echo '<script src="' . plugins_url('/js/jquery-ui-1.8.7.custom.min.js', __FILE__) . '" type="text/javascript"></script>'."\r\n";
        // echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/jquery.hoverbox.min" type="text/javascript"></script>'."\r\n";
     
         echo '	<!--[if lt IE 7]>
-	<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/belated-0.0.8a.min.js" type="text/javascript"></script>
+	<script src="' . plugins_url('/js/belated-0.0.8a.min.js', __FILE__) . '" type="text/javascript"></script>
 	<script>
 	LFWidget$(document).ready(function() {
         DD_belatedPNG.fix("#lf-widget a .wrap");
@@ -263,10 +285,10 @@ function lovefilm_widget_header() {
 	</script>
 	<![endif]-->'."\r\n";
 
-	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/widgets.js" type="text/javascript"></script>'."\r\n";
-	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/contextual.js" type="text/javascript"></script>'."\r\n";
-	echo '<script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/json2.js" type="text/javascript"></script>'."\r\n";
-	echo '<!--[if lt IE 9]><script src="' . LOVEFILM_WS_RESOURCES_URL . '/js/html5.js"></script><![endif]-->'."\r\n";
+	echo '<script src="' . plugins_url('/js/widgets.js', __FILE__) . '" type="text/javascript"></script>'."\r\n";
+	echo '<script src="' . plugins_url('/js/contextual.js', __FILE__) . '" type="text/javascript"></script>'."\r\n";
+	echo '<script src="' . plugins_url('/js/json2.js', __FILE__) . '" type="text/javascript"></script>'."\r\n";
+	echo '<!--[if lt IE 9]><script src="' . plugins_url('/js/html5.js', __FILE__) . '"></script><![endif]-->'."\r\n";
 }	
 /**
  * Used to unregister a setting.
