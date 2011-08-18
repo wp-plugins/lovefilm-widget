@@ -1,7 +1,7 @@
 === LOVEFiLM Widget ===
 Contributors: LOVEFiLM-widgets
 Requires at least: 2.8.0
-Tested up to: 3.1.0
+Tested up to: 3.2.1
 Tags: Film, Films, Games, Media, Affiliate
 Stable Tag: 2.1
 
