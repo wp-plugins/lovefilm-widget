@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS `LFW_Page` ;
+|
+DROP TABLE IF EXISTS `LFW_PageAssignment` ;
+|
+DROP TABLE IF EXISTS `LFW_CatalogItem` ;
+|
+DROP TABLE IF EXISTS `LFW_Contextual` ;
