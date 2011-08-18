@@ -31,7 +31,7 @@ LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOp
                             <?php if(isset($exist->contextual_image) && !empty($exist->contextual_image)) : ?>
                             <img src="<?php echo $exist->contextual_image ?>" />
                             <?php else: ?>
-                            <img src="<?php echo get_option('siteurl') . '/wp-content/plugins/lovefilm/images/default-image.gif'; ?>" />
+                            <img src="<?php echo plugins_url('/img/default-image.gif',__FILE__) . ''; ?>" />
                             <?php endif; ?>
                         </span>
                         <span class="rental">Rent</span>

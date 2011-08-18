@@ -126,7 +126,7 @@ function lovefilm_contextual_meta_box() {
 
         </div>	
 
-    <?php $progress_logo = get_option('siteurl') . '/wp-content/plugins/lovefilm/images/load.gif'; ?>
+    <?php $progress_logo = plugins_url('/img/load.gif',__FILE__); ?>
         <div id="loading">Please wait...<img src="<?php echo $progress_logo; ?>" /></div>
 
 
@@ -376,7 +376,7 @@ function lovefilm_contextual_search_action_insup() {
     <h3>Selected title</h3>
     <div  align="center" style="border:1px solid #ccc"><br />
         <?php if ($lf_image == ""): ?>
-            <a href="<?php echo $lf_title_url; ?>" target="_blank"><img style="border:2px #dfdfdf solid; padding:2px;" src="<?php echo get_option('siteurl') . '/wp-content/plugins/lovefilm/images/default-image.gif'; ?>" /></a>
+        <a href="<?php echo $lf_title_url; ?>" target="_blank"><img style="border:2px #dfdfdf solid; padding:2px;" src="<?php echo plugins_url('/img/default-image.gif',__FILE__); ?>" /></a>
     <?php else: ?>
             <a href="<?php echo $lf_title_url; ?>" target="_blank"><img style="border:2px #dfdfdf solid; padding:2px;" src="<?php echo $lf_image; ?>" /></a>
     <?php endif; ?>
@@ -408,9 +408,15 @@ function lovefilm_contextual_search_action_callback() {
     $page = (isset($_POST['page']))?($_POST['page']):null;
     $lf_post_id = (isset($_POST['lf_post_id']))?($_POST['lf_post_id']):null;
     $api_endpoint = LOVEFILM_WS_API_URL.'/search?mode=' . $searchmode . '&index=' . $searchindex . '&query=' . $searchtext;
-    $api_endpoint;
     
-    $results = simplexml_load_file($api_endpoint);
+    
+    $results = @simplexml_load_file($api_endpoint);
+    if (!($results)) 
+    {
+       echo "<p>Unfortunately your search results could not be found. Please try searching for a different title.</p>";
+    }
+    else 
+    { 
     
     $totalresult = $results->totalresults;
     echo 'Total search results: <strong>' . $totalresult . '</strong>';
@@ -419,7 +425,7 @@ function lovefilm_contextual_search_action_callback() {
     echo '<form></form>';
     foreach ($results->film as $film) {
         if ($film->image == "") {
-            echo '<tr><td width="20%"><a href=" ' . $film->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img style="border:1px #dfdfdf solid; padding:2px;" src="' . get_option('siteurl') . '/wp-content/plugins/lovefilm/images/default-image.gif" /></a></td>';
+            echo '<tr><td width="20%"><a href=" ' . $film->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img style="border:1px #dfdfdf solid; padding:2px;" src="' . plugins_url('/img/default-image.gif',__FILE__) . '" /></a></td>';
         } else {
             echo '<tr><td width="20%"><a href=" ' . $film->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img width="80" src="' . $film->image . '" alt="No Image" style="border:1px #dfdfdf solid; padding:2px;"/></a></td>';
         }
@@ -458,7 +464,7 @@ function lovefilm_contextual_search_action_callback() {
 
     foreach ($results->tv as $tv) {
         if ($tv->image == "") {
-            echo '<tr><td width="20%"><a href=" ' . $tv->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img style="border:1px #dfdfdf solid; padding:2px;" src="' . get_option('siteurl') . '/wp-content/plugins/lovefilm/images/default-image.gif" /></a></td>';
+            echo '<tr><td width="20%"><a href=" ' . $tv->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img style="border:1px #dfdfdf solid; padding:2px;" src="' . plugins_url('/img/default-image.gif',__FILE__) . '" /></a></td>';
         } else {
             echo '<tr><td width="20%"><a href=" ' . $tv->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img width="80" src="' . $tv->image . '" alt="No Image" style="border:1px #dfdfdf solid; padding:2px;"/></a></td>';
         }
@@ -497,7 +503,7 @@ function lovefilm_contextual_search_action_callback() {
 
     foreach ($results->games as $games) {
         if ($games->image == "") {
-            echo '<tr><td width="20%"><a href=" ' . $games->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img style="border:1px #dfdfdf solid; padding:2px;" src="' . get_option('siteurl') . '/wp-content/plugins/lovefilm/images/default-image.gif" /></a></td>';
+            echo '<tr><td width="20%"><a href=" ' . $games->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img style="border:1px #dfdfdf solid; padding:2px;" src="' . plugins_url('/img/default-image.gif',__FILE__) . '" /></a></td>';
         } else {
             echo '<tr><td width="20%"><a href=" ' . $games->title_url . ' " rel="nofollow" target="_blank" alt="Title url" style="text-decoration:none;"><img width="80" src="' . $games->image . '" alt="No Image" style="border:1px #dfdfdf solid; padding:2px;"/></a></td>';
         }
@@ -521,9 +527,9 @@ function lovefilm_contextual_search_action_callback() {
         echo '</form>';
         echo '</td></tr>';
     }
-    echo '</table>';
-
-    lovefilm_contextual_pagination($totalresult, $searchtext, $searchmode, $searchindex, $page);
+        echo '</table>';
+        lovefilm_contextual_pagination($totalresult, $searchtext, $searchmode, $searchindex, $page);
+    }
     die();
 }
 /**
@@ -670,7 +676,7 @@ function lovefilm_contextual_post_show_selected($column_name) {
             if ($show->contextual_image != "") {
                 echo '<a href="' . $show->contextual_title_url . '" target="_blank" title="' . $show->contextual_title . '" ><img style="border:1px #dfdfdf solid; padding:2px;" src="' . $show->contextual_image . '" height="80px" width="80px" /></a>';
             } else {
-                echo '<a href="' . $show->contextual_title_url . '" target="_blank" title="' . $show->contextual_title . '" ><img style="border:1px #dfdfdf solid; padding:2px;" height="80px" width="80px" src="' . get_option('siteurl') . '/wp-content/plugins/lovefilm/images/default-image.gif" /></a>';
+                echo '<a href="' . $show->contextual_title_url . '" target="_blank" title="' . $show->contextual_title . '" ><img style="border:1px #dfdfdf solid; padding:2px;" height="80px" width="80px" src="' . plugins_url('/img/default-image.gif',__FILE__) . '" /></a>';
             }
         }
     }

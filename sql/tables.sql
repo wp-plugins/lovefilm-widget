@@ -1,11 +1,3 @@
-DROP TABLE IF EXISTS `LFW_Page`;
-|
-DROP TABLE IF EXISTS `LFW_PageAssignment`; 
-|
-DROP TABLE IF EXISTS `LFW_CatalogItem`;
-|
-DROP TABLE IF EXISTS `LFW_Contextual`;
-|
 CREATE  TABLE IF NOT EXISTS `LFW_CatalogItem` (
   `catalogitem_id` binary(16) NOT NULL,
   `catalogitem_lovefilm_resource_id` varchar(200) DEFAULT NULL,

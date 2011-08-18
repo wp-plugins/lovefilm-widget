@@ -237,9 +237,66 @@ function lovefilm_input_widget_none()
 }
 function lovefilm_input_widget_aff()
 { 
-   
+  global $wp_version;
+  if ( version_compare($wp_version,"3.2",">=")) 
+  {
     
     $js = <<<EOT
+
+   <script language="JavaScript">
+//<![CDATA[
+    jQuery(document).ready(function(){
+    if(jQuery('.earntype:checked').val() == null)
+	{
+		jQuery('.earntype').filter('[value="none"]').prop('checked', true);
+
+	}
+            function validate(clicked)
+            {
+                if(clicked == 'aff')
+                {
+                    jQuery('#share_love').prop("disabled", true);
+                    jQuery('#share_love').css("background-color", "#E4E4E4");
+                    //jQuery('#share_love').val('');
+                    jQuery('#lovefilm_settings_aff').prop("disabled", false);
+                    jQuery('#lovefilm_settings_aff').css("background-color", "#FFFFFF");
+                    
+                    
+                }
+                if(clicked == 'share_love')
+                {
+                    jQuery('#lovefilm_settings_aff').prop("disabled", true);
+                    jQuery('#lovefilm_settings_aff').css("background-color", "#E4E4E4");
+                    //jQuery('#lovefilm_settings_aff').val('');
+                    jQuery('#share_love').css("background-color", "#FFFFFF");
+                    jQuery('#share_love').prop("disabled", false);
+                }
+                 if(clicked == 'none')
+                {
+                    jQuery('#lovefilm_settings_aff').prop("disabled", true);
+                    jQuery('#lovefilm_settings_aff').css("background-color", "#E4E4E4");
+                   // jQuery('#lovefilm_settings_aff').val('');
+                    jQuery('#share_love').prop("disabled", true);
+                    jQuery('#share_love').css("background-color", "#E4E4E4");
+                   // jQuery('#share_love').val('');
+                }
+            }
+            
+            console.log(jQuery('.earntype:checked').val());
+                validate(jQuery('.earntype:checked').val())
+                jQuery('.earntype').click(function(e){
+                validate(jQuery(this).val());
+            });
+   
+        });
+//]]>
+
+</script>
+EOT;
+  }
+  else
+  {
+       $js = <<<EOT
 
    <script language="JavaScript">
 //<![CDATA[
@@ -291,6 +348,8 @@ function lovefilm_input_widget_aff()
 
 </script>
 EOT;
+}
+  
     echo $js;
     //tool tip
     echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_AFFILIATE_CODE.'</span></span>';
@@ -351,7 +410,7 @@ function lovefilm_input_contextual_links()
 
 function lovefilm_validate_settings($input)
 {
-    //die(var_dump($input));
+    
 	/**
 	 * Array of valid Widget Contexts
 	 */
