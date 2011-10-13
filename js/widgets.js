@@ -280,6 +280,11 @@ var LFWidget = {
         LFWidget$('#featured-article-title a').mousedown(function() {
         	return LFWidget.switch_link(this);
         });
+        
+        // Featured Article Title in post links
+        LFWidget$('.featured-article-title-inpost').mousedown(function() {
+                return LFWidget.switch_link(this);
+        });
     },
 
     scroller : function(target, positions) {

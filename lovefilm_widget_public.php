@@ -12,12 +12,12 @@ LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOp
         <div class="header">
             <a href="<?php echo is_null($mrktMsg) ? 'http://www.lovefilm.com' : $mrktMsg->href ?>" target="_blank" rel="nofollow" class="logo-link">
             <h3>LOVEFiLM</h3>
-            <?php if(!is_null($mrktMsg)): ?><p id="lf-message"><?php echo $mrktMsg->anchor_text; ?></p><?php endif; ?>
+            <?php if(!is_null($mrktMsg)): ?><p id="lf-message"><?php echo html_entity_decode($mrktMsg->anchor_text); ?></p><?php endif; ?>
             </a>
         </div>
 
         <div class="content accordion">
-            <?php //print_r($exist);
+            <?php 
                     $display = true;
                     if(($exist != null || $exist != "") && !is_home())
                     {
@@ -25,7 +25,7 @@ LFWidget.context = <?php echo (isset($widgetOpts['context']) && !empty($widgetOp
             ?>
             <div class="heading"><span class="arrow open">Featured Title</span></div>
             <div class="frame" id="featured-title">
-                <a class="featured-title-review" href="<?php echo $exist->contextual_title_url ?>" alt="<?php echo $exist->contextual_title ?>" target="_blank">
+                <a class="featured-title-review" href="<?php echo stripslashes($exist->contextual_title_url); ?>" alt="<?php echo $exist->contextual_title ?>" target="_blank">
                     <div class="wrap">
                         <span class="image-wrap">
                             <?php if(isset($exist->contextual_image) && !empty($exist->contextual_image)) : ?>

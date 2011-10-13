@@ -97,7 +97,24 @@ function lovefilm_install_tables()
     {
         $wpdb->query($q);
     }
-}
+   
+    /**
+     *  Adding Patch
+     */
+    //add_column_if_not_exist('LFW_Contextual','contextual_display_link',"int(11) DEFAULT '0'");
+      $columns = $wpdb->get_results("show columns from LFW_Contextual where field = 'contextual_display_link'", ARRAY_A);
+    
+      if(count($columns ) == 0){
+            mysql_query("ALTER TABLE LFW_Contextual ADD contextual_display_link int(11) DEFAULT 0");
+        }
+    
+ }
+
+   
+   
+   
+
+
 
 function lovefilm_uninstall_tables()
 {
@@ -245,7 +262,7 @@ function lovefilm_admin_register_settings() {
     add_settings_field('lovefilm_width', 'Width', 'lovefilm_input_width', 'lovefilm-settings-main', 'lovefilm_apperance');
     //add_settings_field(  'lovefilm_width_type',        'Widget Layout Type',    'lovefilm_width_type_input',     'lovefilm-settings-main', 'lovefilm_main');
     if ( version_compare($wp_version,"2.9",">=") ) {
-    add_settings_field('lovefilm_cw_display_link', 'Display article links?', 'lovefilm_input_contextual_links', 'lovefilm-settings-main', 'lovefilm_apperance');
+    add_settings_field('lovefilm_cw_display_link', 'Override display article links', 'lovefilm_input_contextual_links', 'lovefilm-settings-main', 'lovefilm_apperance');
     }
     // Earn section 
     add_settings_field('lovefilm_none', 'No Thanks', 'lovefilm_input_widget_none', 'lovefilm-settings-earn-type', 'lovefilm_earn');
