@@ -430,6 +430,8 @@ WIDGETS STYLE SHEET
     width: 100%;
     background: url(../img/carousel-bg.gif) repeat-x left top;
     font: normal 10px/14px Arial, Helvetica, sans-serif;
+	overflow: hidden;
+	position: relative;
 }
 #lf-widget #lf-wrapped #featured-title * {
     cursor: hand;
@@ -441,6 +443,7 @@ WIDGETS STYLE SHEET
 #lf-widget #lf-wrapped #featured-title .featured-title-review {
     display: block;
     position: relative;
+	z-index: 1;
     margin: 10px 9px;
     width: auto;
     height: 156px;

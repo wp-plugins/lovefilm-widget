@@ -28,7 +28,7 @@
  * The following constant is set by the build process
  */
 if(!defined('LOVEFILM_WIDGET_VERSION')) {
-	define('LOVEFILM_WIDGET_VERSION', "2.4");
+	define('LOVEFILM_WIDGET_VERSION', "2.5");
 }
 /*
  * Checkes the version of the Wordpress. if the version is less then 3.0 then it shows the the error message.

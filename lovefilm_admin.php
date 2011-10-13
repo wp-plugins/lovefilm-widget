@@ -599,4 +599,4 @@ function lovefilim_clearall_pagetiltes()
 	$wpdb->query( $wpdb->prepare("DELETE FROM LFW_PageAssignment"));
 	$wpdb->query( $wpdb->prepare("DELETE FROM LFW_CatalogItem"));
 	return true;
-}  
+}

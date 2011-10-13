@@ -42,5 +42,6 @@ CREATE TABLE IF NOT EXISTS `LFW_Contextual` (
   `contextual_image` varchar(200) DEFAULT NULL,
   `contextual_rating` float DEFAULT NULL,
   `contextual_synopsis` varchar(200) DEFAULT NULL,
+  `contextual_display_link` int(11) DEFAULT '0',
   PRIMARY KEY (`contextual_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
