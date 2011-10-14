@@ -3,7 +3,7 @@
  * Plugin Name: LOVEFiLM Widget
  * Plugin URI: http://www.lovefilm.com/partnership/widgets
  * Description: This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog. Monetise your blog by promoting the latest and most popular movies or games with LOVEFiLM's affiliate program.
- * Version: 2.5
+ * Version: 2.5.1
  * Author: LOVEFiLM-widgets
  * Author URI: http://profiles.wordpress.org/users/LOVEFiLM-widgets/
  * License: GPL2
@@ -28,7 +28,7 @@
  * The following constant is set by the build process
  */
 if(!defined('LOVEFILM_WIDGET_VERSION')) {
-	define('LOVEFILM_WIDGET_VERSION', "2.5");
+	define('LOVEFILM_WIDGET_VERSION', "2.5.1");
 }
 /*
  * Checkes the version of the Wordpress. if the version is less then 3.0 then it shows the the error message.
