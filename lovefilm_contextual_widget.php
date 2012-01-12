@@ -49,51 +49,51 @@ function lovefilm_contextual_styles() {
         #lf-contextual {
         }
 
-        #lf-contextual #select {
+        #lf-contextual #lf-contextual-select {
             width:200px;
         }
 
-        #advanced-sortables #lf-contextual #select {
+        #advanced-sortables #lf-contextual #lf-contextual-select {
             float:right;
             display:inline-block;
         }
 
-        #normal-sortables #lf-contextual #select {
+        #normal-sortables #lf-contextual #lf-contextual-select {
             float:right;
             display:inline-block;
         }
 
-        #side-sortables #lf-contextual #select {
+        #side-sortables #lf-contextual #lf-contextual-select {
             margin: 10px auto;
         }
 
-        #lf-contextual #select .film-selected {
+        #lf-contextual #lf-contextual-select .lf-contextual-film-selected {
             border:1px solid #ccc;
         }
 
-        #lf-contextual #select .film-selected img {
+        #lf-contextual #lf-contextual-select .lf-contextual-film-selected img {
             border:2px #dfdfdf solid;
             padding:2px;
         }
 
-        #lf-contextual #select .film-selected .film-title {
+        #lf-contextual #lf-contextual-select .lf-contextual-film-selected .lf-contextual-film-title {
             text-decoration: none;
         }
 
-        #lf-contextual #select .film-selected .film-title h4 {
+        #lf-contextual #lf-contextual-select .lf-contextual-film-selected .lf-contextual-film-title h4 {
             margin-bottom: 0px;
             padding-bottom: 0px;
         }
 
-        #lf-contextual #results table h4 {
+        #lf-contextual #lf-contextual-results table h4 {
             margin: 5px 0;
         }
         
-        .display-link{
+        .lf-contextual-display-link{
             margin: 5px;
         }
         
-        .backdrop
+        .lf-contextual-backdrop
             {
                     position:fixed;
                     top:0px;
@@ -108,7 +108,7 @@ function lovefilm_contextual_styles() {
             }
 
 
-            .box
+            .lf-contextual-box
             {
                 position:absolute;
                 top:5%;
@@ -130,11 +130,11 @@ function lovefilm_contextual_styles() {
             }
             
             
-            .close_wrap{
+            .lf-contextual-close_wrap{
                 float:right;
             }
 
-            .close
+            .lf-contextual-close
             {
                 float:right;
                 margin-right:6px;
@@ -142,7 +142,7 @@ function lovefilm_contextual_styles() {
                 cursor:pointer;
             }
             
-            #loading_popup
+            #lf-contextual-loading_popup
             {
                 float:left;
                 padding: 5px;
@@ -150,26 +150,23 @@ function lovefilm_contextual_styles() {
                 cursor:pointer;
             }
             
-            .popup_line{
+            .lf-contextual-popup_line{
                 clear:both;
                 border-bottom: 2px #444444 solid;
                 margin-top: 12px;
                 margin-bottom: 5px;
             }
-            #popup-logo{
+            #lf-contextual-popup-logo{
                 float:left;
                 padding-bottom: 5px;
             }
-            #popup-close{
+            #lf-contextual-popup-close{
                 
                 color: #AE1227;
                 
             }
             
-            
-            .display-link{
-            margin: 5px;
-            }
+  
       
     </style>
     <?php
@@ -186,16 +183,16 @@ function lovefilm_contextual_meta_box() {
     
     <div id="lf-contextual">
         <?php if($post->ID > 0): ?>
-        <div class="search-wrapper">
-        <input type="text" autocomplete="off" id="SearchText" name="searchtext"> 
-        <select name="searchmode" id="SearchMode" >
+        <div class="lf-contextual-search-wrapper">
+        <input type="text" autocomplete="off" id="lf-contextual-SearchText" name="searchtext"> 
+        <select name="searchmode" id="lf-contextual-SearchMode" >
             <option value="film">Film</option>
             <option value="games">Games</option>
             <option value="tv">Tv</option>
         </select>
         <input type="hidden" id="lf_post_id" name="lf_post_id" value="<?php echo $post->ID; ?>" />
-        <input type="submit" id="Submit" class="button-primary" value="Search">
-        <span class="tooltip">?<span>
+        <input type="submit" id="lf-contextual-Submit" class="button-primary" value="Search">
+        <span class="lf-tooltip">?<span>
                 <p>Enter the name and type of product to find and click 'Search'. Once a list of products has been found, click 'Add' on the required product to display it within the LOVEFiLM widget.</p>
                 <p>Once selected, the product will be appear within the 'Selected title' box and should you wish, you can remove it from the LOVEFiLM widget by clicking 'Remove'.</p>
                 <p>Use the 'Display article link' checkbox to choose whether to display the article link at the end of the post. This checkbox is ignored where the global LOVEFiLM setting is set to ON.</p>
@@ -205,7 +202,7 @@ function lovefilm_contextual_meta_box() {
         <?php else: ?>
         <p>Publish the post and search for quick links...</p>
         <?php endif; ?>
-        <div id="select">
+        <div id="lf-contextual-select">
             <?php
             $query = "SELECT contextual_post_id FROM LFW_Contextual WHERE contextual_post_id = $post->ID";
             $exist = $wpdb->get_var($query);
@@ -216,13 +213,13 @@ function lovefilm_contextual_meta_box() {
                 $exist = $wpdb->get_row($query);
                 ?>  <h3>Selected title</h3>
 
-                <div align="center" class="film-selected"><br />
+                <div align="center" class="lf-contextual-film-selected"><br />
                     <?php if ($exist->contextual_image == ""): ?>
                         <a href="<?php echo $exist->contextual_title_url; ?>" target="_blank"><img style="border:2px #dfdfdf solid; padding:2px;" src="<?php echo get_option('siteurl') . '/wp-content/plugins/lovefilm/img/default-image.gif'; ?>" /></a>
                     <?php else: ?>
                         <a href="<?php echo $exist->contextual_title_url; ?>" target="_blank"><img style="border:2px #dfdfdf solid; padding:2px;" src="<?php echo $exist->contextual_image; ?>" /></a>
                     <?php endif; ?>
-                    <a href="<?php echo $exist->contextual_title_url; ?>" target="_blank" class="film-title"><h4><?php echo $exist->contextual_title; ?></h4></a>
+                    <a href="<?php echo $exist->contextual_title_url; ?>" target="_blank" class="lf-contextual-film-title"><h4><?php echo $exist->contextual_title; ?></h4></a>
                     <h4 style="margin-top: 3px;">
                     <?php if ($exist->contextual_release_date > 0) {
                         echo $exist->contextual_release_date;
@@ -236,7 +233,7 @@ function lovefilm_contextual_meta_box() {
                  {
                     $checked = 'checked';
                  } ?>
-        <input type ="checkbox" class="display-link" name="display-link" <?php echo $checked; ?> />&nbsp;<strong>Display article link</strong>
+        <input type ="checkbox" class="lf-contextual-display-link" name="display-link" <?php echo $checked; ?> />&nbsp;<strong>Display article link</strong>
                      <br />
                     <input type="hidden" class="lf_remove_id" value="<?php echo $exist->contextual_id ?>" />
                     <input type="submit" id="lf_remove" class="button lf_remove" value="Remove"/><br />
@@ -249,10 +246,10 @@ function lovefilm_contextual_meta_box() {
         </div>	
 
     <?php $progress_logo = plugins_url('/img/load.gif',__FILE__); ?>
-        <div id="loading">Please wait...<img src="<?php echo $progress_logo; ?>" /></div>
+        <div id="lf-contextual-loading">Please wait...<img src="<?php echo $progress_logo; ?>" /></div>
 
 
-        <div id="results" style="" align="left"></div>
+        <div id="lf-contextual-results" style="" align="left"></div>
         <div style="clear:both"></div>
     </div>      
     
@@ -271,14 +268,14 @@ function lovefilm_contextual_ajax() {
         jQuery(document).ready(function() {
 
         
-            jQuery('#select').css('border', "");
-            jQuery('#loading').css('display','none');
-            jQuery('#loading_popup').css('display','none');
+            jQuery('#lf-contextual-select').css('border', "");
+            jQuery('#lf-contextual-loading').css('display','none');
+            jQuery('#lf-contextual-loading_popup').css('display','none');
 
 
             /*--- This is the Pagination code through the anchor tag. */ 
 
-            jQuery('.pagination').live('click', function(e) {
+            jQuery('.lf-contextual-pagination').live('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
            
@@ -290,8 +287,8 @@ function lovefilm_contextual_ajax() {
                     var r = vars[i].split("=");
                     pairs[r[0]] = r[1];
                 }
-                jQuery('#loading').css('display','inline');                              
-                jQuery('#loading_popup').css('display','inline');
+                jQuery('#lf-contextual-loading').css('display','inline');                              
+                jQuery('#lf-contextual-loading_popup').css('display','inline');
 
                 var data = {
                     action: 'search_action',
@@ -304,22 +301,22 @@ function lovefilm_contextual_ajax() {
 
                 jQuery.post(ajaxurl, data, function(response) {
                     
-                    jQuery('#results').css('display','inline');
-                        jQuery(e.target).closest('#results1').html(unescape(response));
-                        jQuery(e.target).closest('#results').html(unescape(response));
-                        jQuery('#results').css('display','block');                   
-                        jQuery('#loading').css('display','none');                              
-			jQuery('#loading_popup').css('display','none');
+                    jQuery('#lf-contextual-results').css('display','inline');
+                        jQuery(e.target).closest('#lf-contextual-results-popup').html(unescape(response));
+                        jQuery(e.target).closest('#lf-contextual-results').html(unescape(response));
+                        jQuery('#lf-contextual-results').css('display','block');                   
+                        jQuery('#lf-contextual-loading').css('display','none');                              
+			jQuery('#lf-contextual-loading_popup').css('display','none');
                 });
                 return false;
             });
 
-            /*--- This is to use the key press when the uesr hit enter from the search text box then it will produce the jQuery('#results').. 
+            /*--- This is to use the key press when the uesr hit enter from the search text box then it will produce the jQuery('#lf-contextual-results').. 
 
-                jQuery('#SearchText').keypress(function (e){
+                jQuery('#lf-contextual-SearchText').keypress(function (e){
                     if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) 
                     {
-                        jQuery('#Submit').click();
+                        jQuery('#lf-contextual-Submit').click();
                         return false;
                     }
 
@@ -327,9 +324,9 @@ function lovefilm_contextual_ajax() {
 
             /*--- This is to add the selected search from . */
 
-            jQuery('.add_data').live('click', function(e) {
-                jQuery('#loading').css('display','inline');                              
-                jQuery('#loading_popup').css('display','inline');
+            jQuery('.lf_add_data').live('click', function(e) {
+                jQuery('#lf-contextual-loading').css('display','inline');                              
+                jQuery('#lf-contextual-loading_popup').css('display','inline');
                 e.stopPropagation();
                 e.preventDefault();
                 var id = jQuery(this).attr('id');
@@ -349,14 +346,14 @@ function lovefilm_contextual_ajax() {
                     lf_mode:(jQuery('.lf_mode').val())
                 };
         					
-                jQuery('#select').html('');
+                jQuery('#lf-contextual-select').html('');
                 
                 jQuery.post(ajaxurl, add_data, function(response) {
-                    jQuery('.selected_remove').css('border', '1px solid #DFDFDF');
-                    jQuery('#select').html(unescape(response));	
-                    jQuery('#loading').css('display','none');                              
-                    jQuery('#loading_popup').css('display','none');
-                    jQuery('.popup_closeme').trigger("click");
+                    //jQuery('.selected_remove').css('border', '1px solid #DFDFDF');
+                    jQuery('#lf-contextual-select').html(unescape(response));	
+                    jQuery('#lf-contextual-loading').css('display','none');                              
+                    jQuery('#lf-contextual-loading_popup').css('display','none');
+                    jQuery('.lf-contextual-popup_closeme').trigger("click");
                 });
 
                 return false;
@@ -365,25 +362,25 @@ function lovefilm_contextual_ajax() {
                 
             /* The search button submit click event */
 
-            jQuery('#Submit').live('click', function() {
+            jQuery('#lf-contextual-Submit').live('click', function() {
 
-                jQuery('#results').css('display','none');
-                jQuery('#results').html('');
-                jQuery('#loading').css('display','inline');                              
-                jQuery('#loading_popup').css('display','inline');
+                jQuery('#lf-contextual-results').css('display','none');
+                jQuery('#lf-contextual-results').html('');
+                jQuery('#lf-contextual-loading').css('display','inline');                              
+                jQuery('#lf-contextual-loading_popup').css('display','inline');
 
                 var data = {
                     action: 'search_action',
-                    searchmode: (jQuery('#SearchMode').val()),
-                    searchtext: escape(jQuery('#SearchText').val()),
+                    searchmode: (jQuery('#lf-contextual-SearchMode').val()),
+                    searchtext: escape(jQuery('#lf-contextual-SearchText').val()),
                     lf_post_id:(jQuery('#lf_post_id').val())
                 };
 
                 jQuery.post(ajaxurl, data, function(response) {
-                    jQuery('#results').css('display','block');
-                    jQuery('#results').html(unescape(response));	
-                    jQuery('#loading').css('display','none');                              
-                    jQuery('#loading_popup').css('display','none');
+                    jQuery('#lf-contextual-results').css('display','block');
+                    jQuery('#lf-contextual-results').html(unescape(response));	
+                    jQuery('#lf-contextual-loading').css('display','none');                              
+                    jQuery('#lf-contextual-loading_popup').css('display','none');
                     
                 });
 
@@ -392,22 +389,22 @@ function lovefilm_contextual_ajax() {
             
                   /* The search button submit click event */
 
-            jQuery('#Submit1').live('click', function() {
+            jQuery('#lf-contextual-Submit-popup').live('click', function() {
     
                 var data = {
                     action: 'search_action',
-                    searchmode: (jQuery('#SearchMode1').val()),
-                    searchtext: escape(jQuery('#SearchText1').val()),
+                    searchmode: (jQuery('#lf-contextual-SearchMode-popup').val()),
+                    searchtext: escape(jQuery('#lf-contextual-SearchText-popup').val()),
                     lf_post_id:(jQuery('#lf_post_id1').val())
                 };
-                jQuery('#loading_popup').css('display','inline');  
+                jQuery('#lf-contextual-loading_popup').css('display','inline');  
 
                 jQuery.post(ajaxurl, data, function(response) {
-                    jQuery('#results').css('display','block');
+                    jQuery('#lf-contextual-results').css('display','block');
                     //console.log('hi');
-                    jQuery('#results1').html(unescape(response));	
-                    jQuery('#loading').css('display','none');                              
-		    jQuery('#loading_popup').css('display','none');
+                    jQuery('#lf-contextual-results-popup').html(unescape(response));	
+                    jQuery('#lf-contextual-loading').css('display','none');                              
+		    jQuery('#lf-contextual-loading_popup').css('display','none');
                     
                 });
 
@@ -415,25 +412,25 @@ function lovefilm_contextual_ajax() {
             });
                 
             /* The search button submit keypress event */
-            jQuery('#SearchText').live('keypress', function(e) {
+            jQuery('#lf-contextual-SearchText').live('keypress', function(e) {
                 if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)){
-                    jQuery('#results').css('display','none');
-                    jQuery('#results').html('');
-                    jQuery('#loading').css('display','inline');                              
-                jQuery('#loading_popup').css('display','inline');
+                    jQuery('#lf-contextual-results').css('display','none');
+                    jQuery('#lf-contextual-results').html('');
+                    jQuery('#lf-contextual-loading').css('display','inline');                              
+                jQuery('#lf-contextual-loading_popup').css('display','inline');
 
                     var data = {
                         action: 'search_action',
-                        searchmode: (jQuery('#SearchMode').val()),
-                        searchtext: escape(jQuery('#SearchText').val()),
+                        searchmode: (jQuery('#lf-contextual-SearchMode').val()),
+                        searchtext: escape(jQuery('#lf-contextual-SearchText').val()),
                         lf_post_id:(jQuery('#lf_post_id').val())
                     };
 
                     jQuery.post(ajaxurl, data, function(response) {
-                        jQuery('#results').css('display','block');
-                        jQuery('#results').html(unescape(response));	
-                        jQuery('#loading').css('display','none');                              
-                        jQuery('#loading_popup').css('display','none');
+                        jQuery('#lf-contextual-results').css('display','block');
+                        jQuery('#lf-contextual-results').html(unescape(response));	
+                        jQuery('#lf-contextual-loading').css('display','none');                              
+                        jQuery('#lf-contextual-loading_popup').css('display','none');
                     });
                     return false;
                 }
@@ -443,17 +440,17 @@ function lovefilm_contextual_ajax() {
 
             jQuery('.lf_remove').live('click', function(e) {
 
-                jQuery('#loading').css('display','inline');
-                jQuery('#loading_popup').css('display','inline');
+                jQuery('#lf-contextual-loading').css('display','inline');
+                jQuery('#lf-contextual-loading_popup').css('display','inline');
                 var remove_data = {
                     action: 'remove_action',
                     lf_remove_id:(jQuery('.lf_remove_id').val())
                 }
                 jQuery.post(ajaxurl, remove_data, function(response) {
-                    jQuery('#select').css('border','none');	
-                    jQuery('#select').html('');	
-                    jQuery('#loading').css('display','none');                              
-                    jQuery('#loading_popup').css('display','none');
+                    jQuery('#lf-contextual-select').css('border','none');	
+                    jQuery('#lf-contextual-select').html('');	
+                    jQuery('#lf-contextual-loading').css('display','none');                              
+                    jQuery('#lf-contextual-loading_popup').css('display','none');
                 });
 
                 return false; 
@@ -461,7 +458,7 @@ function lovefilm_contextual_ajax() {
             
             /* Display link */
             
-        jQuery('.display-link').live('click', function(e) {
+        jQuery('.lf-contextual-display-link').live('click', function(e) {
         if(jQuery('input[name=display-link]').is(':checked')== true)
         {
             var checked = 'true';
@@ -470,8 +467,8 @@ function lovefilm_contextual_ajax() {
             {
                 checked = 'false';
             }
-            jQuery('#loading').css('display','inline');                              
-            jQuery('#loading_popup').css('display','inline');
+            jQuery('#lf-contextual-loading').css('display','inline');                              
+            jQuery('#lf-contextual-loading_popup').css('display','inline');
         
         var display_link = {
     	    action: 'display_article_link',
@@ -480,8 +477,8 @@ function lovefilm_contextual_ajax() {
         }
         jQuery.post(ajaxurl, display_link, function(response) {
             console.log(response);
-            jQuery('#loading').css('display','none');                              
-            jQuery('#loading_popup').css('display','none');
+            jQuery('#lf-contextual-loading').css('display','none');                              
+            jQuery('#lf-contextual-loading_popup').css('display','none');
         });
             
         });
@@ -490,9 +487,9 @@ function lovefilm_contextual_ajax() {
             
             
             /* POP UP BOX CODE BEGINING */
-                jQuery('.lightbox').click(function(){
-                    jQuery('.backdrop').fadeTo(300,0.5);
-                    jQuery('.box').fadeIn(300);
+                jQuery('.lf-contextual-lightbox').click(function(){
+                    jQuery('.lf-contextual-backdrop').fadeTo(300,0.5);
+                    jQuery('.lf-contextual-box').fadeIn(300);
                 });
 
             /* POP UP BOX CODE ENDING */
@@ -615,13 +612,13 @@ function lovefilm_contextual_search_action_insup() {
     $exist = $wpdb->get_var($query);
     ?>
     <h3>Selected title</h3>
-    <div id="selection"  align="center" style="border:1px solid #ccc"><br />
+    <div id="lf-contextual-selection"  align="center" style="border:1px solid #ccc"><br />
         <?php if ($lf_image == ""): ?>
         <a href="<?php echo $lf_title_url; ?>" target="_blank"><img style="border:2px #dfdfdf solid; padding:2px;" src="<?php echo plugins_url('/img/default-image.gif',__FILE__); ?>" /></a>
     <?php else: ?>
             <a href="<?php echo $lf_title_url; ?>" target="_blank"><img style="border:2px #dfdfdf solid; padding:2px;" src="<?php echo $lf_image; ?>" /></a>
     <?php endif; ?>
-        <a class="menu-top" id="selection_url" href="<?php echo $lf_title_url; ?>" target="_blank" style="text-decoration: none;"><h4 style="margin-bottom: 0px; padding-bottom: 0px;"><?php echo $lf_title; ?></h4></a>
+        <a class="lf-contextual-menu-top" id="selection_url" href="<?php echo $lf_title_url; ?>" target="_blank" style="text-decoration: none;"><h4 style="margin-bottom: 0px; padding-bottom: 0px;"><?php echo $lf_title; ?></h4></a>
         <h4 style="margin-top: 3px;">
                     <?php if ($lf_release_date > 0) {
                         echo $lf_release_date;
@@ -640,9 +637,9 @@ function lovefilm_contextual_search_action_insup() {
                  } ?>
         
         
-        <input type ="checkbox" class="display-link" name="display-link"  <?php echo $checked; ?> />&nbsp;<strong>Display article link</strong>
+        <input type ="checkbox" class="lf-contextual-display-link" name="display-link"  <?php echo $checked; ?> />&nbsp;<strong>Display article link</strong>
         <br />
-        <form id="form_remove" action="" method="post">
+        <form id="lf-contextual-form_remove" action="" method="post">
             <input type="hidden" class="lf_remove_id" value="<?php echo $exist ?>" />    
             <input type="submit" id="lf_remove" class="button lf_remove" value="Remove"/><br />
         </form>
@@ -712,7 +709,7 @@ function lovefilm_contextual_search_action_callback() {
         echo '<input type="hidden" name="lf_synopsis" id="' . $film->id . 'lf_synopsis" class="lf_synopsis" value="' . htmlentities($film->synopsis) . '" />';
         echo '<input type="hidden" name="lf_rating" id="' . $film->id . 'lf_rating" class="lf_rating" value="' . $film->rating . '" />';
         echo '<input type="hidden" name="lf_post_id" id="lf_post_id" value="' . $lf_post_id . '" />';
-        echo '<input type="submit" id="' . $film->id . '" class="add_data button" value="Add" class="button"><a style="display:none" class="popup_closeme"></a>';
+        echo '<input type="submit" id="' . $film->id . '" class="lf_add_data button" value="Add" class="button"><a style="display:none" class="lf-contextual-popup_closeme"></a>';
         echo '</form>';
         echo '</td></tr>';
     }
@@ -751,7 +748,7 @@ function lovefilm_contextual_search_action_callback() {
         echo '<input type="hidden" name="lf_synopsis" id="' . $tv->id . 'lf_synopsis" class="lf_synopsis" value="' . htmlentities($tv->synopsis) . '" />';
         echo '<input type="hidden" name="lf_rating" id="' . $tv->id . 'lf_rating" class="lf_rating" value="' . $tv->rating . '" />';
         echo '<input type="hidden" name="lf_post_id" id="lf_post_id" value="' . $lf_post_id . '" />';
-        echo '<input type="submit" id="' . $tv->id . '" class="add_data" value="Add" class="button"><a style="display:none" class="popup_closeme"></a>';
+        echo '<input type="submit" id="' . $tv->id . '" class="lf_add_data" value="Add" class="button"><a style="display:none" class="lf-contextual-popup_closeme"></a>';
         echo '</form>';
         echo '</td></tr>';
     }
@@ -778,7 +775,7 @@ function lovefilm_contextual_search_action_callback() {
         echo '<input type="hidden" name="lf_synopsis" id="' . $games->id . 'lf_synopsis" class="lf_synopsis" value="' . htmlentities($games->synopsis) . '" />';
         echo '<input type="hidden" name="lf_rating" id="' . $games->id . 'lf_rating" class="lf_rating" value="' . $games->rating . '" />';
         echo '<input type="hidden" name="lf_post_id" id="lf_post_id" value="' . $lf_post_id . '" />';
-        echo '<input type="submit" id="' . $games->id . '" class="add_data button" value="Add" class="button"><a style="display:none" class="popup_closeme"></a>';
+        echo '<input type="submit" id="' . $games->id . '" class="lf_add_data button" value="Add" class="button"><a style="display:none" class="lf-contextual-popup_closeme"></a>';
         echo '</form>';
         echo '</td></tr>';
     }
@@ -789,7 +786,7 @@ function lovefilm_contextual_search_action_callback() {
     die();
 }
 /**
- * The Pagination that deals with each search jQuery('#results').
+ * The Pagination that deals with each search jQuery('#lf-contextual-results').
  * @param type $totalresult
  * @param type $query
  * @param type $mode
@@ -836,7 +833,7 @@ function lovefilm_contextual_pagination($totalresult, $query, $mode, $lf_post_id
 
     // FOR ENABLING THE FIRST BUTTON
     if ($first_btn && $cur_page > 1) {
-        ?><a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=1&lf_post_id=<?php echo $lf_post_id ?>" class="pagination">First</a>     <?php
+        ?><a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=1&lf_post_id=<?php echo $lf_post_id ?>" class="lf-contextual-pagination">First</a>     <?php
     } else if ($first_btn) {
         //disable first button
     }
@@ -848,7 +845,7 @@ function lovefilm_contextual_pagination($totalresult, $query, $mode, $lf_post_id
         if ($index <= 0) {
             $index = 1;
         }
-        ?><a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $index; ?>&page=<?php echo $page ?>&lf_post_id=<?php echo $lf_post_id ?>" class="pagination">Previous</a> <?php
+        ?><a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $index; ?>&page=<?php echo $page ?>&lf_post_id=<?php echo $lf_post_id ?>" class="lf-contextual-pagination">Previous</a> <?php
     } else if ($previous_btn) {
         //DISABLE PREVIOUS BUTTON
     }
@@ -867,9 +864,9 @@ function lovefilm_contextual_pagination($totalresult, $query, $mode, $lf_post_id
             $cur_page = 1;
         }
         if ($cur_page == $i) {
-            ?> <a style="text-decoration: none; padding:3px; border:3px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $index ?>&page=<?php echo $i ?>&lf_post_id="<?php echo $lf_post_id ?> class="pagination"><?php echo $i ?></a> <?php
+            ?> <a style="text-decoration: none; padding:3px; border:3px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $index ?>&page=<?php echo $i ?>&lf_post_id="<?php echo $lf_post_id ?> class="lf-contextual-pagination"><?php echo $i ?></a> <?php
         } else {
-            ?> <a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $index ?>&page=<?php echo $i ?>&lf_post_id="<?php echo $lf_post_id ?> class="pagination"><?php echo $i ?></a> <?php
+            ?> <a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $index ?>&page=<?php echo $i ?>&lf_post_id="<?php echo $lf_post_id ?> class="lf-contextual-pagination"><?php echo $i ?></a> <?php
         }
     }
 
@@ -887,7 +884,7 @@ function lovefilm_contextual_pagination($totalresult, $query, $mode, $lf_post_id
             $next = 6;
             $nex = 2;
         }
-        ?> <a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $next ?>&page=<?php echo $nex ?>&lf_post_id="<?php echo $lf_post_id ?> class="pagination">Next</a> <?php
+        ?> <a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $next ?>&page=<?php echo $nex ?>&lf_post_id="<?php echo $lf_post_id ?> class="lf-contextual-pagination">Next</a> <?php
     } else if ($next_btn) {
         // disable next button
     }
@@ -896,7 +893,7 @@ function lovefilm_contextual_pagination($totalresult, $query, $mode, $lf_post_id
     if ($last_btn && $cur_page < $no_of_paginations) {
         $end_page = ($no_of_paginations - 1) * 5;
         $end_page++;
-        ?> <a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $end_page ?>&page=<?php echo $no_of_paginations ?>&lf_post_id="<?php echo $lf_post_id ?> class="pagination">Last</a> <?php
+        ?> <a style="text-decoration: none; padding:3px; border:1px solid #ccc;line-height:30px;" href="?query=<?php echo $query ?>&mode=<?php echo $mode ?>&index=<?php echo $end_page ?>&page=<?php echo $no_of_paginations ?>&lf_post_id="<?php echo $lf_post_id ?> class="lf-contextual-pagination">Last</a> <?php
     } else if ($last_btn) {
         //disable last button
     }
@@ -992,25 +989,28 @@ function lovefilm_contextual_footer_link($content_to_filter) {
  */
 function lovefilm_light_box_popup() {
     global $wpdb, $post;
-    if($post->ID > 0)
-    {
+    if(is_object($post)) {
+	    if($post->ID > 0)
+	    {
     ?>
-    <a href="#" class="lightbox"></a>
-    <div class="backdrop"></div>
+    <a href="#" class="lf-contextual-lightbox"></a>
+    <div class="lf-contextual-backdrop"></div>
      <?php $progress_logo = plugins_url('/img/load.gif',__FILE__); ?>
         
-    <div class="box"><div id="popup-logo"><img src="<?php echo plugins_url('/img/logo.gif',__FILE__); ?>" /> </div><div class="close_wrap"><div id="loading_popup">Please wait...<img src="<?php echo $progress_logo; ?>" /></div><div id="popup-close" class="close button">Close&nbsp;<img src="<?php echo plugins_url('/img/close.jpg',__FILE__); ?>" /></div></div> 
-        <div class="popup_line"></div>
-     <div class="search-wrapper1">
-        <input type="text" autocomplete="off" id="SearchText1" name="searchtext"> 
-        <select name="searchmode" id="SearchMode1" >
+    <div class="lf-contextual-box"><div id="lf-contextual-popup-logo"><img src="<?php echo plugins_url('/img/logo.gif',__FILE__); ?>" /> </div>
+        <div class="lf-contextual-close_wrap"><div id="lf-contextual-loading_popup">Please wait...<img src="<?php echo $progress_logo; ?>" /></div>
+            <div id="lf-contextual-popup-close" class="lf-contextual-close button">Close&nbsp;<img src="<?php echo plugins_url('/img/close.jpg',__FILE__); ?>" /></div></div> 
+        <div class="lf-contextual-popup_line"></div>
+     <div class="lf-contextual-search-wrapper1">
+        <input type="text" autocomplete="off" id="lf-contextual-SearchText-popup" name="searchtext"> 
+        <select name="searchmode" id="lf-contextual-SearchMode-popup" >
             <option value="film">Film</option>
             <option value="games">Games</option>
             <option value="tv">Tv</option>
         </select>
         <input type="hidden" id="lf_post_id" name="lf_post_id" value="<?php echo the_ID(); ?>" />
-        <input type="submit" id="Submit1" class="button-primary" value="Search">
-        <span class="tooltip">?<span>
+        <input type="submit" id="lf-contextual-Submit-popup" class="button-primary" value="Search">
+        <span class="lf-tooltip">?<span>
                 <p>Enter the name and type of product to find and click 'Search'. Once a list of products has been found, click 'Add' on the required product to display it within the LOVEFiLM widget.</p>
                 <p>Once selected, the product will appear within the 'Selected title' box and should you wish, you can remove it from the LOVEFiLM widget by clicking 'Remove'.</p>
                 <p> A link will also be created between the product and any highlighted text. To remove this link use the WordPress Unlink button.</p>
@@ -1018,10 +1018,11 @@ function lovefilm_light_box_popup() {
          </span></span>
      
     </div>
-        <div id="results1" style="" align="left"></div>
+        <div id="lf-contextual-results-popup" style="" align="left"></div>
         <div style="clear:both"></div>
         </div>
     <?php
+	    }
     }
 }
 

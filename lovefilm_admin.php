@@ -96,7 +96,7 @@ EOT;
 
 function lovefilm_input_width()
 {   
-    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_WIDTH_TYPE.'</span></span>';
+    echo '<span class="lf-tooltip">?<span>'.LOVEFILM_STR_ADMIN_WIDTH_TYPE.'</span></span>';
     $options = get_option('lovefilm-settings');
     $empty = ($options['lovefilm_width_type'] == "" || is_null($options['lovefilm_width_type']));
 
@@ -175,7 +175,7 @@ function lovefilm_input_widget_theme()
 {
     
     //toop tip
-    echo '<span class="tooltip">?<span>Choose whether the widget is to use the light or dark colour theme.</span></span>';
+    echo '<span class="lf-tooltip">?<span>Choose whether the widget is to use the light or dark colour theme.</span></span>';
     
     $options = get_option('lovefilm-settings');
     if(is_array($options) && array_key_exists('theme', $options))
@@ -201,7 +201,7 @@ function lovefilm_input_widget_theme()
 function lovefilm_input_widget_context()
 {
     //tool tip
-    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_WIDGET_CONTEXT.'</span></span>';
+    echo '<span class="lf-tooltip">?<span>'.LOVEFILM_STR_ADMIN_WIDGET_CONTEXT.'</span></span>';
     
     $options = get_option('lovefilm-settings');
     $selected = $options['context'];
@@ -217,7 +217,7 @@ function lovefilm_input_widget_context()
 function lovefilm_input_widget_none()
 {
      //tool tip
-    echo '<span class="tooltip">?<span>Select None.</span></span>';
+    echo '<span class="lf-tooltip">?<span>Select None.</span></span>';
     
     $earn_type = get_option('lovefilm_earn_type');
     
@@ -352,7 +352,7 @@ EOT;
   
     echo $js;
     //tool tip
-    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_AFFILIATE_CODE.'</span></span>';
+    echo '<span class="lf-tooltip">?<span>'.LOVEFILM_STR_ADMIN_AFFILIATE_CODE.'</span></span>';
     
     $options = get_option('lovefilm-settings');
     $input = null;
@@ -372,7 +372,7 @@ EOT;
 function lovefilm_input_widget_share_love()
 {   
     //tool tip
-    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_SHARE_LOVE.'</span></span>';
+    echo '<span class="lf-tooltip">?<span>'.LOVEFILM_STR_ADMIN_SHARE_LOVE.'</span></span>';
     
     $options = get_option('lovefilm_share_love');
     $input = null;
@@ -396,7 +396,7 @@ function lovefilm_input_widget_share_love()
 function lovefilm_input_contextual_links()
 {
     //tool tip
-    echo '<span class="tooltip">?<span>'.LOVEFILM_STR_ADMIN_CONTEXTUAL_DISPLAY_ARTICLE_LINK.'</span></span>';
+    echo '<span class="lf-tooltip">?<span>'.LOVEFILM_STR_ADMIN_CONTEXTUAL_DISPLAY_ARTICLE_LINK.'</span></span>';
     
     $options = get_option('lovefilm_contextual_display_article_link');
     ?>
