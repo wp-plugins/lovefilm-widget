@@ -8,10 +8,10 @@
                 image:url+'/lovefilm.jpg',
                 onclick:function(){
                     var search_text = "";
-                    jQuery(".lightbox").trigger('click');
-                    jQuery('#results1').html("");
-                    jQuery('#SearchMode1').val('film');
-                    jQuery('#selection .menu-top').html("");
+                    jQuery(".lf-contextual-lightbox").trigger('click');
+                    jQuery('#lf-contextual-results-popup').html("");
+                    jQuery('#lf-contextual-SearchMode-popup').val('film');
+                    jQuery('#lf-contextual-selection .lf-contextual-menu-top').html("");
                     currentSelection = ed.selection.getSel();
                     
                     if(!(ed.selection.isCollapsed()))
@@ -25,6 +25,11 @@
                                  search_text =(jQuery.trim((ed.selection.getContent({ format : 'text'}))));
                             }
                          }
+                         
+                         /* This the chrome fix to avoid the special characters form the search text */
+                         var rep = new RegExp(String.fromCharCode(65279), 'g');
+                         search_text = search_text.replace(rep, '');
+                         
                          
                     /** If the selection is not empty then allow it for the IE fix.
                      */     
@@ -41,8 +46,8 @@
                     /**
                      *  Search box to search the given title by the default mode as filims.
                      */                   
-                    jQuery('#SearchText1').val(search_text);
-                    jQuery('#loading_popup').css('display','inline');
+                    jQuery('#lf-contextual-SearchText-popup').val(search_text);
+                    jQuery('#lf-contextual-loading_popup').css('display','inline');
                     var data={
                         action:'search_action',
                         searchmode:"film",
@@ -54,22 +59,22 @@
                      */
                    jQuery.post(ajaxurl,data,function(response){
                         var response_result=unescape(response);
-                        jQuery('#results1').html(response_result);
-                        jQuery('#loading_popup').css('display','none');
+                        jQuery('#lf-contextual-results-popup').html(response_result);
+                        jQuery('#lf-contextual-loading_popup').css('display','none');
                         
                     });
                     //close the pop up when clicked on pop up close button
-                    jQuery('.close').click(function(){
+                    jQuery('.lf-contextual-close').click(function(){
                         close_box()
                     });
                     //close the pop up when clicked on pop up gray area
-                    jQuery('.backdrop').click(function(){
+                    jQuery('.lf-contextual-backdrop').click(function(){
                         close_box()
                     });
                      
                    //popup_closeme is used to add the title and close the popup by adding the selected title to the featured title.
                         
-                    jQuery('.popup_closeme').live('click', function() {
+                    jQuery('.lf-contextual-popup_closeme').live('click', function() {
                        
                        /** if IE is used the do this */
                         
@@ -80,12 +85,12 @@
                            
                       
                         if(ed.selection.getContent()){
-                            var title =jQuery('#selection .menu-top h4').html();
-                            var link=jQuery('#selection .menu-top').attr('href');
+                            var title =jQuery('#lf-contextual-selection .lf-contextual-menu-top h4').html();
+                            var link=jQuery('#lf-contextual-selection .lf-contextual-menu-top').attr('href');
                             
                             if(!link)
                             {
-                                link = jQuery('.film-selected .film-title').attr('href');                                
+                                link = jQuery('.lf-contextual-film-selected .lf-contextual-film-title').attr('href');                                
                             }
                            
                             if(link){
@@ -106,14 +111,14 @@
                             }
                         }
                         
-                        jQuery('.backdrop, .box').fadeOut();
+                        jQuery('.lf-contextual-backdrop, .lf-contextual-box').fadeOut();
                     });
                     /**
                      * Closes the pop up box.
                      */
                     function close_box()
                     {
-                        jQuery('.backdrop, .box').fadeOut();
+                        jQuery('.lf-contextual-backdrop, .lf-contextual-box').fadeOut();
                     }
                   
                 }//End of onclick function

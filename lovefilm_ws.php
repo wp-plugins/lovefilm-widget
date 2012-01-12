@@ -368,8 +368,8 @@ function lovefilm_ws_get_embedded_titles_db()
                  a.`nofollow` as nofollow
            FROM LFW_PageAssignment a
            JOIN  LFW_CatalogItem c ON c.catalogitem_id = a.catalogitem_id
-           WHERE a.page_id = \'%s\'';
-           ;
+           WHERE a.page_id = \'%s\'
+           ORDER BY a.assignment_position ASC;';
 
     $sql     = sprintf($sql, $page);
     return $wpdb->get_results($sql);

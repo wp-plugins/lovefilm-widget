@@ -1,9 +1,9 @@
 === LOVEFiLM Widget ===
 Contributors: LOVEFiLM-widgets
 Requires at least: 2.8.0
-Tested up to: 3.2.1
+Tested up to: 3.3
 Tags: Film, Films, Games, Media, Affiliate
-Stable Tag: 2.5.1
+Stable Tag: 2.5.2
 
 This plugin allows you to add the official LOVEFiLM widget to the sidebar of your Wordpress blog.
 
@@ -13,6 +13,10 @@ Easily and quickly integrate the LOVEFiLM Widget into your website. This plugin 
 The plugin displays the latest and most popular film or games titles and comes with customisable width and colour themes.
 By popular demand, the Plugin now features contextualisation. An individual title can be selected and featured within the widget.  Support for a simple 'sign up' message at the footer of each article is now supported increasing sign up potential.
 This plugin fully supports [LOVEFiLM.com](http://www.lovefilm.com/) at the present time with other LOVEFiLM territories being offered in the near future.
+
+Note: Any potential problems with the Plugin can usually be solved by deactivating and reactivating. In most cases this will 'trip' the plugin into reregistering with LOVEFiLM and should fix any problems.
+Note: Note that copy and pasting content from Word into WordPress may carry over "invisible" characters that make it difficult for the Context Search features of the LOVEFiLM Widget to locate films and games. If you have any problems try cleaning your pasted content by copying it into Notepad first, then copy and paste it into WordPress.
+Note: Due to a TinyMCE issue, to use the Contextual functionality on IE9, please switch IE to 'Compatability Mode' for Wordpress versions 2.9 and 3.0.
 
 == Installation ==
 
